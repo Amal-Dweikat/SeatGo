@@ -1,13 +1,20 @@
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import {Platform, Pressable, StyleSheet, TextInput, View, Text} from 'react-native';
 
 import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import {Link, router} from 'expo-router';
+import {useState} from "react";
 
 export default function HomeScreen() {
+  const [id , setid]=useState("")
+  const handlepress=(id:any)=>{
+    router.push( id )
+
+
+  }
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -17,6 +24,30 @@ export default function HomeScreen() {
           style={styles.reactLogo}
         />
       }>
+      <View>
+        <TextInput
+            value={id}
+            onChangeText={(text) => setid(text)}
+            style={{
+              backgroundColor: "#fff",
+              padding: 10,
+              borderRadius: 10,
+            }}
+        />
+
+        <Pressable
+            onPress={() => handlepress(id)}
+            style={{
+              marginTop: 10,
+              backgroundColor: "#E55C16",
+              padding: 12,
+              borderRadius: 10,
+              alignItems: "center",
+            }}
+        >
+          <Text style={{ color: "#fff" }}>Go</Text>
+        </Pressable>
+      </View>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welcome!</ThemedText>
         <HelloWave />
