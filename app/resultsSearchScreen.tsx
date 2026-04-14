@@ -50,34 +50,6 @@ export default function ResultsScreen() {
     time: null,
   });
 
- 
-  const fetchTrips = async (currentFilters: Filters) => {
-    try {
-      setLoading(true);
-
-      const result = await searchTrips({
-        from_city: (fromValue ?? "").toLowerCase().trim(),
-        to_city: (toValue ?? "").toLowerCase().trim(),
-        time: normalizeTime(timeValue ?? ""),
-        passengers: currentFilters.passengers,
-        sort: currentFilters.sort,
-        price: currentFilters.price,
-      });
-
-      setData(result);
-    } catch (e) {
-      console.log("API ERROR:", e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // أول تحميل
-  useEffect(() => {
-    fetchTrips(filters);
-  }, [fromValue, toValue, timeValue]);
-
- 
   const normalizeTime = (time?: string): string => {
     if (!time) return "";
 
@@ -88,13 +60,33 @@ export default function ResultsScreen() {
     return time;
   };
 
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+
+        const result = await searchTrips({
+          from_city: (fromValue ?? "").toLowerCase().trim(),
+          to_city: (toValue ?? "").toLowerCase().trim(),
+          time: normalizeTime(timeValue ?? ""),
+        });
+
+        setData(result);
+      } catch (e) {
+        console.log("API ERROR:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [fromValue, toValue, timeValue]);
 
   const timeToMinutes = (t: string) => {
     const [h, m] = t.split(":").map(Number);
     return h * 60 + m;
   };
 
-  
   const filteredData = data
     .filter((item) => {
       if (filters.passengers) {
@@ -106,11 +98,13 @@ export default function ResultsScreen() {
       if (filters.price === "low") return a.price - b.price;
       if (filters.price === "high") return b.price - a.price;
 
-      if (filters.time === "earliest")
+      if (filters.time === "earliest") {
         return timeToMinutes(a.time) - timeToMinutes(b.time);
+      }
 
-      if (filters.time === "latest")
+      if (filters.time === "latest") {
         return timeToMinutes(b.time) - timeToMinutes(a.time);
+      }
 
       if (filters.sort === "new") return b.id - a.id;
       if (filters.sort === "old") return a.id - b.id;
@@ -118,7 +112,6 @@ export default function ResultsScreen() {
       return 0;
     });
 
-  
   return (
     <View style={{ flex: 1 }}>
       {/* HEADER */}
@@ -143,10 +136,7 @@ export default function ResultsScreen() {
       {/* FILTER */}
       <SortFilterDropdown
         filters={filters}
-        onChange={(newFilters) => {
-          setFilters(newFilters);
-          fetchTrips(newFilters); // 
-        }}
+        onChange={(newFilters) => setFilters(newFilters)}
       />
 
       {loading ? (
@@ -205,6 +195,7 @@ const styles = StyleSheet.create({
     width: 100,
     textAlign: "center",
   },
+
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
