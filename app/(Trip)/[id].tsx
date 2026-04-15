@@ -38,7 +38,7 @@ export default function TripDetails() {
 
         fetchTrip();
 
-        const interval = setInterval(fetchTrip, 3000);
+        const interval = setInterval(fetchTrip, 9000000);
 
         return () => clearInterval(interval);
     }, [tripId]);

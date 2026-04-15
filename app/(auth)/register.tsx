@@ -38,7 +38,7 @@ export default function RegisterScreen() {
 
     const onSubmit = (data: any) => {
         registerMutation.mutate(data);
-        router.push("/searchscreen");
+        router.push("/UserHomeScreen");
     };
 
     return (
