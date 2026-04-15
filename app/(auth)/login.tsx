@@ -44,6 +44,7 @@ export default function LoginScreen() {
 
     const onSubmit = (data: any) => {
         loginMutation.mutate(data);
+        router.push("/searchscreen")
     };
 
     return (

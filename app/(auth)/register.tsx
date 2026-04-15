@@ -38,6 +38,7 @@ export default function RegisterScreen() {
 
     const onSubmit = (data: any) => {
         registerMutation.mutate(data);
+        router.push("/searchscreen");
     };
 
     return (
@@ -85,7 +86,7 @@ export default function RegisterScreen() {
                 <Text style={styles.b}>
                     Already have an account?<Text
                     style={styles.link}
-                    onPress={() => router.push("/searchscreen")}
+                    onPress={() => router.push("/login")}
                 >
                     Log In
                 </Text>

@@ -11,7 +11,7 @@ export default function driverHomePage() {
         title={"Welcome back  \nReady to earn with your rides?"}
         subtitle={"Offer available seats in your car\n and make extra income"}
         buttonText="Schedule a Trip"
-        onPress={() => router.push("..//register")}
+        onPress={() => router.push("/")}
     />
     );
 
