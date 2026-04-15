@@ -12,6 +12,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createDriverApi } from "@/api/driverApi";
 import * as SecureStore from "expo-secure-store";
 import { Alert } from "react-native";
+import {router} from "expo-router";
 
 export default function DriverForm() {
     const { control, handleSubmit } = useForm();
@@ -30,6 +31,7 @@ export default function DriverForm() {
     });
     const onSubmit = (data: any) => {
         driverMutation.mutate(data);
+         router.push("/DriverHomePage")
     };
 
     return (
@@ -94,7 +96,7 @@ export default function DriverForm() {
 
                     <TouchableOpacity
                         style={styles.button}
-                        onPress={handleSubmit(onSubmit)}
+                        onPress={handleSubmit(onSubmit) }
                     >
                         <Text style={styles.buttonText}>Submit Request</Text>
                     </TouchableOpacity>
