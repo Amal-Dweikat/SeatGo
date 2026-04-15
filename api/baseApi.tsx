@@ -12,7 +12,6 @@ const baseApi = axios.create({
     },
 });
 
-
 baseApi.interceptors.request.use(
     async (config) => {
         const token = await SecureStore.getItemAsync("token");

@@ -4,17 +4,17 @@ import { Ionicons } from "@expo/vector-icons";
 
 export default function CardInfoTrip( props:any ){
 
-    const {bookedSeats, totalSeats}= props;
 
     const isFull = (props.bookedSeats) >= (props.totalSeats);
+
     return (
         <>
         <View style={styles.locationRow}>
             <View style={styles.locationPoint}>
                 <Ionicons name="location-outline" size={30} color="#E55C16" />
                 <View style={{flexDirection :"column",}}>
-                    <Text style={styles.cityText}>Jerusalem</Text>
-                    <Text style={styles.areaText}>Sheikh Jarrah</Text>
+                    <Text style={styles.cityText}>{props.fromCity}</Text>
+                    <Text style={styles.areaText}>{props.fromArea}</Text>
                 </View>
 
             </View>
@@ -22,8 +22,8 @@ export default function CardInfoTrip( props:any ){
             <View style={styles.locationPoint}>
                 <Ionicons name="location-outline" size={30} color="#E55C16" />
                 <View style={{flexDirection :"column",}}>
-                    <Text style={styles.cityText}>Ramallah</Text>
-                    <Text style={styles.areaText}>City Center</Text>
+                    <Text style={styles.cityText}>{props.toCity}</Text>
+                    <Text style={styles.areaText}>{props.fromArea}</Text>
                 </View>
             </View>
         </View>
@@ -35,19 +35,19 @@ export default function CardInfoTrip( props:any ){
         <View style={styles.gridItem}>
             <Ionicons name="calendar-outline" size={20} color="#E55C16" />
             <Text style={styles.gridLabel}>Date</Text>
-            <Text style={styles.gridValue}>03-09-2026</Text>
+            <Text style={styles.gridValue}>{props.date}</Text>
         </View>
         <View style={styles.verticalDivider} />
         <View style={styles.gridItem}>
             <Ionicons name="time-outline" size={20} color="#E55C16" />
             <Text style={styles.gridLabel}>Departure</Text>
-            <Text style={styles.gridValue}>08:30</Text>
+            <Text style={styles.gridValue}>{props.departureTime}</Text>
         </View>
         <View style={styles.verticalDivider} />
         <View style={styles.gridItem}>
             <Ionicons name="flag-outline" size={20} color="#E55C16" />
             <Text style={styles.gridLabel}>Expected Arrival</Text>
-            <Text style={styles.gridValue}>09:15</Text>
+            <Text style={styles.gridValue}>{props.arrivalTime}</Text>
         </View>
     </View>
 
@@ -58,13 +58,13 @@ export default function CardInfoTrip( props:any ){
         <View style={styles.gridItem}>
             <Ionicons name="cash-outline" size={20} color="#E55C16" />
             <Text style={styles.gridLabel}>Price Per Seats</Text>
-            <Text style={styles.gridValue}>30 ILS</Text>
+            <Text style={styles.gridValue}> {props.price}  {"ILS"} </Text>
         </View>
         <View style={styles.verticalDivider} />
         <View style={styles.gridItem}>
             <Ionicons name="people-outline" size={20} color="#E55C16" />
             <Text style={styles.gridLabel}>Seats</Text>
-            <Text style={styles.gridValue}>{props.bookedSeats} / {props.totalSeats}</Text>
+            <Text style={styles.gridValue}> {props.bookedSeats} / {props.totalSeats}</Text>
         </View>
 
     </View>
@@ -100,7 +100,7 @@ export default function CardInfoTrip( props:any ){
     <View style={styles.noteBox}>
         <Text style={styles.noteTitle}>{"Driver's Note:"}</Text>
         <Text style={styles.noteContent}>
-            {"Please do not smoke inside the car."}
+            {props.note}
         </Text>
     </View>
     </>

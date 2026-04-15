@@ -5,11 +5,43 @@ import {Ionicons} from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CardInfoDriver from "@/components/CradInfoDriver";
 import TripCard from "@/components/ContainerTripSummary";
+import {useEffect, useState} from "react";
+import {returnTripInfo} from "@/api/TripDetaild";
+
 export default function TripDetails() {
     const { id } = useLocalSearchParams();
-const handlePress=()=>{
+    const tripId = Array.isArray(id) ? id[0] : id;
+    const handlePress=()=>{
     router.back()
     }
+    const setBookedSeatsHandler = (num :number) => {
+        setBookedSeats(num);
+    };
+
+    const [bookedSeats, setBookedSeats] = useState<number>(0);
+
+    const [trip, setTrip] = useState<any>(null);
+    const [driver, setDriver] = useState<any>(null);
+    const [car, setCar] = useState<any>(null);
+    useEffect(() => {
+        const fetchTrip = () => {
+            returnTripInfo(Number(tripId))
+
+                .then(res => {
+                    setTrip(res.data.Trip)
+                    setCar(res.data.Cars)
+                    setDriver(res.data.Drivers)
+                    setBookedSeats(res.data.Trip.BookedSeats);
+                })
+                .catch(console.log);
+        };
+
+        fetchTrip();
+
+        const interval = setInterval(fetchTrip, 3000);
+
+        return () => clearInterval(interval);
+    }, [tripId]);
     return(
         <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.container}>
@@ -39,22 +71,24 @@ const handlePress=()=>{
                     </View>
                     <Text style={styles.title}> Trip Details  </Text>
                 </View>
-            </View>
+        </View>
             <View style={styles.content}>
-                 <CardInfoDriver></CardInfoDriver>
+                 <CardInfoDriver name={driver?.full_name} phone={driver?.phone_number} rating={driver?.average_rating} typeCar={car?.type} colorCar={car?.maroon} plateNum={car?.plate_number} ></CardInfoDriver>
 
                  <View style={styles.cardComplete}>
                      <TripCard
-                         fromCity="Ramallah"
-                         toCity="Nablus"
-                         fromArea="Al-Manara"
-                         toArea="City Center"
-                         price="25"
-                         seats="3"
-                         departureTime="10:00 AM"
-                         arrivalTime="11:15 AM"
-                         date="12 May 2026"
-                         note="Please be on time"
+                         fromCity={trip?.FromCity}
+                         toCity={trip?.ToCity}
+                         fromArea={trip?.FromRegion}
+                         toArea={trip?.ToRegion}
+                         price={trip?.Price}
+                         departureTime={trip?.DepartureTime}
+                         arrivalTime={trip?.ArrivalTime}
+                         date={trip?.DateTrip}
+                         note={trip?.note}
+                         bookedSeats={bookedSeats}
+                         totalSeats=   {trip?.TotalSeats}
+                         onChangeSeat={setBookedSeatsHandler}
                      />
                     </View>
             </View>
