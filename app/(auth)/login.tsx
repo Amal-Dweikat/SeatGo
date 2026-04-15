@@ -47,9 +47,11 @@ export default function LoginScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <AuthBackground />
 
+
+        <SafeAreaView style={styles.container}>
+
+            <AuthBackground />
             <View style={styles.card}>
                 <Text style={styles.heading}>Welcome Back</Text>
 
@@ -82,9 +84,10 @@ export default function LoginScreen() {
                 <Text style={styles.b}>
                     {"Don't have an account?"}
                 </Text>
-                <Text style={styles.link} onPress={() => router.push("/searchscreen")}>Creat Account</Text>
+                <Text style={styles.link} onPress={() => router.push("/register")}>Creat Account</Text>
             </View>
         </SafeAreaView>
+
     );
 }
 

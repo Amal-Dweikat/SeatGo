@@ -27,7 +27,7 @@ export default function AuthBackground() {
 
 
             <View style={styles.bottomSvg}>
-                <Svg width="100%" height={140} viewBox="0 0 402 110">
+                <Svg width="100%" height={120} viewBox="0 0 402 110">
                     <Path
                         d="M466 185C466 287.173 347.355 370 201 370C54.6445 370 -64 287.173 -64 185C-64 82.8273 54.6445 0 201 0C347.355 0 466 82.8273 466 185Z"
                         fill="#F8F8F8"
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     },
     bottomSvg: {
         position: "absolute",
-        bottom: -40,
+        bottom: 0,
         width: "100%",
         alignItems: "center",
     },
