@@ -1,15 +1,14 @@
+import Hero from "@/components/Hero";
 import SortFilterDropdown from "@/components/SortFilterDropdown";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   FlatList,
-  ImageBackground,
   StyleSheet,
   Text,
-  TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import { searchTrips } from "../api/api";
+import { searchTrips } from "../api/searchApi";
 import ItemCard from "../components/ItemCard";
 
 type Item = {
@@ -114,24 +113,32 @@ export default function ResultsScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* HEADER */}
-      <ImageBackground
-        source={{
-          uri: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
-        }}
-        style={styles.header}
-      >
-        <View style={styles.overlay}>
-          <Text style={styles.title}>Trips from</Text>
-          <Text style={styles.subtitle}>
-            {fromValue} → {toValue}
-          </Text>
+      <View style={{ position: "relative" }}>
+        {/* زر الرجوع 
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={{
+        position: "absolute",
+        top: 60,
+        left: 15,
+        zIndex: 20,
+        backgroundColor: "#fff",
+        padding: 8,
+        borderRadius: 20,
+      }}
+        >
+          <Ionicons name="arrow-back" size={24} color="black" />
+        </TouchableOpacity>
+        */}
 
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text style={styles.backLink}>Edit search</Text>
-          </TouchableOpacity>
-        </View>
-      </ImageBackground>
+        <Hero
+          image={require("@/assets/img.png")}
+          title={`Trips from\n${fromValue} → ${toValue}`}
+          subtitle="Find the best available rides"
+          buttonText="Edit search"
+          onPress={() => router.back()}
+        />
+      </View>
 
       {/* FILTER */}
       <SortFilterDropdown

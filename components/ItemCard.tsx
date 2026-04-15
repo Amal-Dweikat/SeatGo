@@ -1,7 +1,5 @@
-import { router, useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity , Image, FlatList } from "react-native";
-
+import { router } from "expo-router";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type Item = {
   id: number;
@@ -20,23 +18,17 @@ type Props = {
   onPress?: () => void;
 };
 
-export default function ItemCard({ item, onPress }: Props)
- { 
-  
-
-
-
-   return (
-    
+export default function ItemCard({ item, onPress }: Props) {
+  return (
     <View style={styles.card}>
-
       <View style={styles.header}>
-      <Text style={styles.city}>📍 {item.from_city} → {item.to_city}</Text>
+        <Text style={styles.city}>
+          📍 {item.from_city} → {item.to_city}
+        </Text>
 
         <Text style={styles.price}>{item.price} ₪</Text>
       </View>
 
-      
       <View style={styles.row}>
         <Text style={styles.timetag}>{item.time}</Text>
       </View>
@@ -45,31 +37,23 @@ export default function ItemCard({ item, onPress }: Props)
         <Text style={styles.tag}>👥 {item.passengers} people</Text>
       </View>
 
-      
-<View style={styles.bottomcard}>
-  <View style={styles.driverRow}>
-    <Image
-      source={{ uri: item.driver_image }}
-      style={styles.driverImage}
-    />
+      <View style={styles.bottomcard}>
+        <View style={styles.driverRow}>
+          <Image
+            source={{ uri: item.driver_image }}
+            style={styles.driverImage}
+          />
 
-    <Text style={styles.driverName}>
-      {item.driver_name}
-    </Text>
-  </View>
+          <Text style={styles.driverName}>{item.driver_name}</Text>
+        </View>
 
-  <TouchableOpacity
-    style={styles.button}
-    onPress={() =>
-      router.push({
-        pathname: "/",
-        params: { id: item.id },
-      })
-    }
-  >
-    <Text style={styles.buttonText}>View Details</Text>
-  </TouchableOpacity>
-</View>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push(`/${item.id}`)}
+        >
+          <Text style={styles.buttonText}>View Details</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -131,13 +115,13 @@ const styles = StyleSheet.create({
   },
   timetag: {
     marginBottom: 2,
-    paddingVertical: 5,},
+    paddingVertical: 5,
+  },
 
   button: {
     backgroundColor: "#ff9914",
     padding: 10,
     borderRadius: 10,
-    
   },
 
   buttonText: {
@@ -145,47 +129,47 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   bottomcard: {
-  marginTop: 15,
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-},
+    marginTop: 15,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
 
   driverRow: {
-  flexDirection: "row",
-  alignItems: "center",
-},
+    flexDirection: "row",
+    alignItems: "center",
+  },
 
-driverImage: {
-  width: 35,
-  height: 35,
-  borderRadius: 18,
-  marginRight: 10,
-  backgroundColor: "#ddd",
-},
+  driverImage: {
+    width: 35,
+    height: 35,
+    borderRadius: 18,
+    marginRight: 10,
+    backgroundColor: "#ddd",
+  },
 
-driverName: {
-  fontSize: 14,
-  fontWeight: "600",
-  color: "#333",
-},
-searchCard: {
-  backgroundColor: "#fff",
-  margin: 15,
-  marginTop: -20,
-  padding: 15,
-  borderRadius: 12,
-  elevation: 5,
-},
+  driverName: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333",
+  },
+  searchCard: {
+    backgroundColor: "#fff",
+    margin: 15,
+    marginTop: -20,
+    padding: 15,
+    borderRadius: 12,
+    elevation: 5,
+  },
 
-searchText: {
-  fontSize: 16,
-  fontWeight: "bold",
-  color: "#333",
-},
+  searchText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
 
-searchSubText: {
-  marginTop: 5,
-  color: "#777",
-},
+  searchSubText: {
+    marginTop: 5,
+    color: "#777",
+  },
 });

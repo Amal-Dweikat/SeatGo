@@ -68,7 +68,7 @@ export default function SortFilterDropdown({ filters, onChange }: Props) {
 
   return (
     <View style={styles.container}>
-      {renderDropdown("Passengers", "passengers", [2, 5, 10, 15])}
+      {renderDropdown("Passengers at least", "passengers", [2, 5, 10, 15])}
       {renderDropdown("Sort", "sort", ["new", "old"])}
       {renderDropdown("Price", "price", ["low", "high"])}
       {renderDropdown("Time", "time", ["earliest", "latest"])}
