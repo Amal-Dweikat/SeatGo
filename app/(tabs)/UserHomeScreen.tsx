@@ -236,7 +236,7 @@ import ItemCard from "@/components/ItemCard";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  FlatList,
+  FlatList, Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -301,6 +301,15 @@ export default function UserHomeScreen() {
     });
   };
 
+
+
+  const [id , setid]=useState("")
+  const handlepress=(id:any)=>{
+    router.push( id )
+
+
+  }
+
   return (
       <View style={styles.container}>
         {/* HERO */}
@@ -309,7 +318,7 @@ export default function UserHomeScreen() {
             title={"Share Your Ride,\n and earn money !"}
             subtitle={"Offer available seats in your car\n and make extra income"}
             buttonText="Become a Driver"
-            onPress={() => router.push("/")}
+            onPress={() => router.push("/DriverForm")}
         />
 
         {/* SEARCH BOX */}
@@ -354,6 +363,8 @@ export default function UserHomeScreen() {
               <TouchableOpacity onPress={() => setOpen(false)}>
                 <Text style={styles.closeText}>Close</Text>
               </TouchableOpacity>
+
+
             </View>
         )}
 
@@ -374,6 +385,13 @@ export default function UserHomeScreen() {
                 )}
             />
         )}
+
+
+
+
+
+
+
       </View>
   );
 }
