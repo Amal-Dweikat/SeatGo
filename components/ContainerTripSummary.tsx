@@ -4,14 +4,12 @@ import {useState} from "react";
 import CardInfoTrip from "./CardInfoTrip";
 import {BookingApi,BookingData} from "@/api/TripDetaild";
 
-export default function TripCard({ fromCity, toCity, fromArea, toArea, price, seat, departureTime, arrivalTime, date, note,}:any) {
+export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bookedSeats,totalSeats, departureTime, arrivalTime, date, note,onChangeSeat}:any)  {
 
 
     const [showBooking,setShowBooking]=useState(false);
     const [seats, setSeats] = useState(1);
     const [repeat, setRepeat] = useState(false);
-    const [bookedSeats, setBookedSeats] = useState(2);
-    const [totalSeats, setTotalSeats] = useState(4);
     const [endDate, setEndDate] = useState("");
     const isFull = bookedSeats >= totalSeats;
     const isRepeatFromDriver=true;
@@ -59,7 +57,7 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, se
         data.WantRepeat=repeat;
         data.SelectedDays=selectedDays;
         data.dateOfEndRepeat=endDate;
-        setBookedSeats(bookedSeats+seats);
+        onChangeSeat(bookedSeats+seats);
         setShowBooking(false);
         BookingApi(data);
     }
@@ -68,7 +66,7 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, se
         <ScrollView style={styles.container}>
             <View style={styles.card}>
                 <Text style={styles.sectionTitle}>Trip Summary</Text>
-                  <CardInfoTrip totalSeats={totalSeats} bookedSeats={bookedSeats} ></CardInfoTrip>
+                  <CardInfoTrip totalSeats={totalSeats} bookedSeats={bookedSeats} fromCity={fromCity} toCity={toCity} fromArea={fromArea} toArea={toArea} price={price} departureTime={departureTime} arrivalTime={arrivalTime} date={date} note={note}  ></CardInfoTrip>
                 {/* Button Go Book */}
                 {!isFull && !showBooking &&(
                     <Pressable style={styles.bookButton} onPress={()=>setShowBooking(!showBooking) }>
