@@ -1,129 +1,69 @@
-import { Image } from 'expo-image';
-import {Platform, Pressable, StyleSheet, TextInput, View, Text} from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import {Link, router} from 'expo-router';
-import {useState} from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { useEffect } from "react";
+import { router } from "expo-router";
+import Svg, { Path } from "react-native-svg";
+import MyIcon from "@/components/MyIcon";
 
-export default function HomeScreen() {
-  const [id , setid]=useState("")
-  const handlepress=(id:any)=>{
-    router.push( id )
+export default function SplashScreen() {
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            router.replace("/register");
+        }, 3000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    return (
+
+        <View style={styles.container}>
+
+            <View style={styles.centerContent}>
+                <MyIcon width={320} height={320} />
+
+                <Text style={styles.text}>
+                    Connecting people,{"\n"}sharing rides.
+                </Text>
+            </View>
 
 
-  }
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <View>
-        <TextInput
-            value={id}
-            onChangeText={(text) => setid(text)}
-            style={{
-              backgroundColor: "#fff",
-              padding: 10,
-              borderRadius: 10,
-            }}
-        />
+            <View style={styles.bottomShape}>
+                <Svg width={215} height={240} viewBox="0 0 215 240">
+                    <Path
+                        d="M215 185C215 287.173 128.367 370 21.5 370C-85.3671 370 -172 287.173 -172 185C-172 82.8273 -85.3671 0 21.5 0C128.367 0 215 82.8273 215 185Z"
+                        fill="#F8F8F8"
+                    />
+                </Svg>
+            </View>
 
-        <Pressable
-            onPress={() => handlepress(id)}
-            style={{
-              marginTop: 10,
-              backgroundColor: "#E55C16",
-              padding: 12,
-              borderRadius: 10,
-              alignItems: "center",
-            }}
-        >
-          <Text style={{ color: "#fff" }}>Go</Text>
-        </Pressable>
-      </View>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
-
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+        </View>
+    );
 }
-
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+    container: {
+        flex: 1,
+        backgroundColor: "#E55C16",
+        justifyContent: "center",
+        alignItems: "center",
+        overflow: "hidden",
+    },
+
+    centerContent: {
+        alignItems: "center",
+        marginTop: -250,
+    },
+
+    text: {
+        color: "white",
+        fontSize: 25,
+        textAlign: "center",
+        marginTop: 20,
+    },
+
+    bottomShape: {
+        position: "absolute",
+        bottom: -60,
+        left: -40,
+    },
 });
