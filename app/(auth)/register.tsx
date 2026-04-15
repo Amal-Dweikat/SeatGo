@@ -85,7 +85,7 @@ export default function RegisterScreen() {
                 <Text style={styles.b}>
                     Already have an account?<Text
                     style={styles.link}
-                    onPress={() => router.push("/login")}
+                    onPress={() => router.push("/searchscreen")}
                 >
                     Log In
                 </Text>

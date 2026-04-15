@@ -82,7 +82,7 @@ export default function LoginScreen() {
                 <Text style={styles.b}>
                     {"Don't have an account?"}
                 </Text>
-                <Text style={styles.link} onPress={() => router.push("/DriverHomePage")}>Creat Account</Text>
+                <Text style={styles.link} onPress={() => router.push("/searchscreen")}>Creat Account</Text>
             </View>
         </SafeAreaView>
     );
