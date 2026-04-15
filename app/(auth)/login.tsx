@@ -29,7 +29,6 @@ export default function LoginScreen() {
 
             await SecureStore.setItemAsync("token", token);
 
-            Alert.alert("Success", "Logged in successfully");
 
         },
 

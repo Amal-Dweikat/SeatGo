@@ -33,7 +33,7 @@ export default function FormInput({
                             <Ionicons
                                 name={icon as any}
                                 size={20}
-                                color="#999"
+                                color="#E55C16"
                                 style={styles.icon}
                             />
                         )}
