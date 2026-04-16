@@ -25,7 +25,7 @@ export default function DriverForm() {
         },
 
         onError: (err: any) => {
-            Alert.alert("Error", "Something went wrong");
+
             console.log(err?.response?.data);
         },
     });

@@ -15,6 +15,7 @@ import {registerApi} from "@/api/authApi";
 import * as SecureStore from "expo-secure-store";
 import FormInput from "@/components/FormInput";
 import {router} from "expo-router";
+import {useState} from "react";
 
 
 
@@ -28,17 +29,17 @@ export default function RegisterScreen() {
             const token = res.data.token;
             await SecureStore.setItemAsync("token", token);
 
-
+            router.push("/UserHomeScreen");
         },
 
-        onError: (err: unknown) => {
+        onError: (err: any) => {
 
         },
     });
 
     const onSubmit = (data: any) => {
         registerMutation.mutate(data);
-        router.push("/UserHomeScreen");
+
     };
 
     return (

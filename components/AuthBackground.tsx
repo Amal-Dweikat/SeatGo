@@ -4,7 +4,7 @@ import MyIcon from "@/components/MyIcon";
 
 export default function AuthBackground() {
     return (
-        <>
+        <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
 
             <View style={styles.topSection}>
                 <View style={styles.svgContainer}>
@@ -26,7 +26,7 @@ export default function AuthBackground() {
 
 
 
-            <View style={styles.bottomSvg}>
+            <View style={styles.bottomFixed}>
                 <Svg width="100%" height={120} viewBox="0 0 402 110">
                     <Path
                         d="M466 185C466 287.173 347.355 370 201 370C54.6445 370 -64 287.173 -64 185C-64 82.8273 54.6445 0 201 0C347.355 0 466 82.8273 466 185Z"
@@ -35,7 +35,7 @@ export default function AuthBackground() {
                 </Svg>
             </View>
 
-        </>
+        </View>
     );
 }
 
@@ -61,6 +61,13 @@ const styles = StyleSheet.create({
         position: "absolute",
         bottom: 0,
         width: "100%",
+        alignItems: "center",
+    },
+    bottomFixed: {
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
         alignItems: "center",
     },
 });
