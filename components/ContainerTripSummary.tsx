@@ -52,7 +52,7 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
         const data : BookingData = {NumSeat: seats,
             WantRepeat: repeat,
             SelectedDays: repeat ? selectedDays : [],
-            dateOfEndRepeat: repeat ? endDate : null,};
+            dateOfEndRepeat: repeat ? endDate : null};
         data.NumSeat=seats;
         data.WantRepeat=repeat;
         data.SelectedDays=selectedDays;

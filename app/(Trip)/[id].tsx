@@ -99,7 +99,7 @@ export default function TripDetails() {
                         />
                         <Path
                             d="M0,17 C45,30 40,0 100,10"
-                            stroke="#F7F7F7"
+                            stroke="#F2F2F2"
                             strokeWidth="1"
                             fill="none"
                         />
@@ -115,7 +115,7 @@ export default function TripDetails() {
                 </View>
         </View>
             <View style={styles.content}>
-                 <CardInfoDriver name={driver?.full_name} phone={driver?.phone_number} rating={driver?.average_rating} typeCar={car?.type} colorCar={car?.maroon} plateNum={car?.plate_number} ></CardInfoDriver>
+                 <CardInfoDriver name={driver?.full_name} phone={driver?.phone_number} rating={driver?.average_rating} typeCar={car?.type} colorCar={car?.color} plateNum={car?.plate_number} ></CardInfoDriver>
 
                  <View style={styles.cardComplete}>
                      <TripCard
@@ -157,7 +157,7 @@ const styles= StyleSheet.create({
         alignItems:"center",
         justifyContent:"center",
         position:"absolute",
-        backgroundColor:"#FCF0EB",
+        backgroundColor:"#F2F2F2",
         width:40,
         height:40,
         borderRadius:20,
