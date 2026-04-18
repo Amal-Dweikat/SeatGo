@@ -4,7 +4,8 @@ export type BookingData =
     { NumSeat: number;
         WantRepeat:boolean;
         SelectedDays?:string[];
-        dateOfEndRepeat?: string | null;}
+        dateOfEndRepeat?: string | null;
+        Trip_id?:number}
 export const BookingApi = (data : BookingData) => {
     return baseApi.post("/booking", data);
 };
