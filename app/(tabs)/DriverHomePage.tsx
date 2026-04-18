@@ -1,6 +1,6 @@
 import Hero from "@/components/Hero";
 import { router } from "expo-router";
-import {SafeAreaView, StyleSheet, View, Text, TouchableOpacity, Modal} from "react-native";
+import {SafeAreaView, StyleSheet, View, Text, TouchableOpacity, Modal, Pressable, TextInput} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {endTripApi, getCurrentTrip, getDriverStats, startTripApi} from "@/api/driverApi";
@@ -41,6 +41,11 @@ export default function DriverHomePage() {
             setShowRating(true);
         },
     });
+
+    const [id , setid]=useState("")
+    const handlepress = () => {
+        router.push(`/${id}`);
+    };
 
     return (
 
@@ -151,6 +156,30 @@ export default function DriverHomePage() {
                     </View>
                 </View>
             </Modal>
+            <View>
+                <TextInput
+                    value={id}
+                    onChangeText={(text) => setid(text)}
+                    style={{
+                        backgroundColor: "#fff",
+                        padding: 10,
+                        borderRadius: 10,
+                    }}
+                />
+
+                <Pressable
+                    onPress={handlepress}
+                    style={{
+                        marginTop: 10,
+                        backgroundColor: "#E55C16",
+                        padding: 12,
+                        borderRadius: 10,
+                        alignItems: "center",
+                    }}
+                >
+                    <Text style={{ color: "#fff" }}>Go</Text>
+                </Pressable>
+            </View>
         </SafeAreaView>
     );
 
