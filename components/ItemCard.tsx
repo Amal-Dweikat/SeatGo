@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View ,Image} from "react-native";
 
 type Item = {
   id: number;
@@ -23,51 +23,46 @@ type Props = {
 
 export default function ItemCard({ item }: Props) {
   return (
-    <View style={styles.card}>
-      <View style={styles.header}>
-        <Text style={styles.city}>
-          📍 {item.FromCity} → {item.ToCity}
-        </Text>
+      <View style={styles.card}>
+        <View style={styles.header}>
+          <Text style={styles.city}>
+            📍 {item.FromCity} → {item.ToCity}
+          </Text>
 
-        <Text style={styles.price}>{item.Price} ₪</Text>
-      </View>
-
-      <View style={styles.row}>
-        <Text>{item.DepartureTime}</Text>
-      </View>
-
-      <View style={styles.row}>
-        <Text style={styles.tag}>🚗 {item.transport}</Text>
-        <Text>{item.BookedSeats} people</Text>
-      </View>
-      <View style={styles.row}>
-        <Text style={styles.tag}> {item.driver_image}</Text>
-        <Text>{item.driver_name}</Text>
-      </View>
-
-      <View style={styles.bottomcard}>
-        <View style={styles.driverRow}>
-          <Image
-            source={{ uri: item.driver?.user?.profile_picture }}
-            style={styles.driverImage}
-          />
-
-          <Text style={styles.driverName}>{item.driver?.user?.full_name}</Text>
+          <Text style={styles.price}>{item.Price} ₪</Text>
         </View>
 
-        <TouchableOpacity
-  style={styles.button}
-  onPress={() =>
-    router.push({
-      pathname: "/(Trip)/[id]",
-      params: { id: item.id },
-    })
-  }
->
-  <Text style={styles.buttonText}>View Details</Text>
-</TouchableOpacity>
+        <View style={styles.row}>
+          <Text>{item.DepartureTime}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.tag}>🚗 {item.transport}</Text>
+          <Text>{item.BookedSeats} people</Text>
+        </View>
+        <View style={styles.row}>
+          <View style={styles.tag}>
+             <Image
+              source={ {uri:`../assets/images/${item.driver.user.profile_picture}`}}
+              style={styles.driverImage}
+          /></View>
+          <Text>{item.driver?.user?.full_name}</Text>
+        </View>
+
+        <View style={styles.bottomcard}>
+          <TouchableOpacity
+              style={styles.button}
+              onPress={() =>
+                  router.push({
+                    pathname: "/(Trip)/[id]",
+                    params: { id: item.id },
+                  })
+              }
+          >
+            <Text style={styles.buttonText}>View Details</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
   );
 }
 
@@ -124,4 +119,12 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
+  driverImage: {
+    width: 35,
+    height: 35,
+    borderRadius: 18,
+    marginRight: 10,
+    backgroundColor: "#ddd",
+  },
+
 });

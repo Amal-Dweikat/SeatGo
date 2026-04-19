@@ -2,13 +2,13 @@ import { StyleSheet, Text, View ,Image} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import Rating from "@/components/Rating";
 
-export default function CardInfoDriver({name,phone,rating,typeCar,colorCar,plateNum}:any){
+export default function CardInfoDriver({name,phone,rating,typeCar,colorCar,plateNum,image}:any){
 
 return(
   <View style={styles.cardInfoDr}>
     <View style={styles.TopInfo} >
-     <Image
-      source={ require("../assets/images/Driver3.jpg")} style={styles.driverImage} />
+       <Image
+      source={  {uri:`../assets/images/${image}`}} style={styles.driverImage} />
        <View style={styles.DriverInfo} >
          <Text style={styles.driverName} >{name}</Text>
          <Text ><Ionicons name="person" size={16} color="#E55C16" />{":"}{name}</Text>
