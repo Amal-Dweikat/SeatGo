@@ -25,11 +25,26 @@ export default function LoginScreen() {
         mutationFn: loginApi,
 
         onSuccess: async (res) => {
+            // const token = res.data.token;
+            //
+            // await SecureStore.setItemAsync("token", token);
+            // router.push("/UserHomeScreen")
+
             const token = res.data.token;
+            const user = res.data.user;
+
 
             await SecureStore.setItemAsync("token", token);
 
 
+            if (user.role === 'driver') {
+                router.replace("/DriverHomePage");
+            } else if (user.role === 'passenger') {
+                router.replace("/UserHomeScreen");
+            } else {
+
+                router.replace("/UserHomeScreen");
+            }
         },
 
         onError: (err: any) => {
@@ -43,7 +58,7 @@ export default function LoginScreen() {
 
     const onSubmit = (data: any) => {
         loginMutation.mutate(data);
-        router.push("/UserHomeScreen")
+
     };
 
     return (
@@ -144,7 +159,7 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius:50,
         marginTop: 10,
-        pointerEvents: "none",
+        // pointerEvents: "none",
     },
 
     buttonText: {

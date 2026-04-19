@@ -22,6 +22,7 @@ export default function DriverForm() {
 
         onSuccess: async (res) => {
             Alert.alert("Success", "Driver request submitted!");
+            router.push("/DriverHomePage")
         },
 
         onError: (err: any) => {
@@ -31,7 +32,7 @@ export default function DriverForm() {
     });
     const onSubmit = (data: any) => {
         driverMutation.mutate(data);
-         router.push("/DriverHomePage")
+
     };
 
     return (

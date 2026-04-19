@@ -130,6 +130,7 @@ export default function TripDetails() {
                          note={trip?.note}
                          bookedSeats={bookedSeats}
                          totalSeats=   {trip?.TotalSeats}
+                         // id={tripId}
                          onChangeSeat={setBookedSeatsHandler}
                      />
                     </View>
