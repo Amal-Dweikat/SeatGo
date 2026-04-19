@@ -4,7 +4,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     SafeAreaView,
-    Alert,
+    Alert, KeyboardAvoidingView, Platform,
 } from "react-native";
 
 import AuthBackground from "@/components/AuthBackground";
@@ -25,11 +25,22 @@ export default function LoginScreen() {
         mutationFn: loginApi,
 
         onSuccess: async (res) => {
+
             const token = res.data.token;
+            const user = res.data.user;
+
 
             await SecureStore.setItemAsync("token", token);
 
 
+            if (user.role === 'driver') {
+                router.replace("/DriverHomePage");
+            } else if (user.role === 'passenger') {
+                router.replace("/UserHomeScreen");
+            } else {
+
+                router.replace("/UserHomeScreen");
+            }
         },
 
         onError: (err: any) => {
@@ -43,15 +54,16 @@ export default function LoginScreen() {
 
     const onSubmit = (data: any) => {
         loginMutation.mutate(data);
-        router.push("/UserHomeScreen")
+
     };
 
     return (
 
 
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
 
             <AuthBackground />
+
             <View style={styles.card}>
                 <Text style={styles.heading}>Welcome Back</Text>
 
@@ -86,7 +98,9 @@ export default function LoginScreen() {
                 </Text>
                 <Text style={styles.link} onPress={() => router.push("/register")}>Creat Account</Text>
             </View>
-        </SafeAreaView>
+
+        </View>
+
 
     );
 }
@@ -97,7 +111,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#F2F2F2",
-        overflow: "hidden",
+
 
     },
     a:{
@@ -141,6 +155,7 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius:50,
         marginTop: 10,
+        // pointerEvents: "none",
     },
 
     buttonText: {
@@ -149,7 +164,15 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
 
+    content: {
+        flex: 1,
+        justifyContent: "space-between",
+    },
 
+    footer: {
+        alignItems: "center",
+        marginBottom: 40,
+    },
 
 
     link: {

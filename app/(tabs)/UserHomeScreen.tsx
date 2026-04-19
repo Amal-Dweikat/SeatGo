@@ -236,7 +236,7 @@ import ItemCard from "@/components/ItemCard";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  FlatList, Pressable,
+  FlatList,
   StyleSheet,
   Text,
   TextInput,
@@ -246,12 +246,12 @@ import {
 
 type Trip = {
   id: number;
-  from_city: string;
-  to_city: string;
-  time: string;
+  FromCity: string;
+  ToCity: string;
+  DepartureTime: string;
   transport: string;
-  price: number;
-  passengers: number;
+    Price: number;
+    BookedSeats: number;
   driver: {
     user: {
       full_name: string;
@@ -305,98 +305,85 @@ export default function UserHomeScreen() {
     });
   };
 
-
-
-  const [id , setid]=useState("")
-  const handlepress=(id:any)=>{
-    router.push( id )
-
-
-  }
+  const [id, setid] = useState("");
+  const handlepress = (id: any) => {
+    router.push(id);
+  };
 
   return (
-      <View style={styles.container}>
-        {/* HERO */}
-        <Hero
-            image={require("@/assets/img.png")}
-            title={"Share Your Ride,\n and earn money !"}
-            subtitle={"Offer available seats in your car\n and make extra income"}
-            buttonText="Become a Driver"
-            onPress={() => router.push("/DriverForm")}
+    <View style={styles.container}>
+      {/* HERO */}
+      <Hero
+        image={require("@/assets/img.png")}
+        title={"Share Your Ride,\n and earn money !"}
+        subtitle={"Offer available seats in your car\n and make extra income"}
+        buttonText="Become a Driver"
+        onPress={() => router.push("/DriverForm")}
+      />
+
+      {/* SEARCH BOX */}
+      {!open && (
+        <TouchableOpacity
+          style={styles.collapsedCard}
+          onPress={() => setOpen(true)}
+        >
+          <Text style={styles.searchText}>🔍 Tap to search trips</Text>
+        </TouchableOpacity>
+      )}
+
+      {open && (
+        <View style={styles.card}>
+          <Text style={styles.title}>Search Trips</Text>
+
+          <TextInput
+            placeholder="From"
+            style={styles.input}
+            value={from_city}
+            onChangeText={setFrom}
+          />
+
+          <TextInput
+            placeholder="To"
+            style={styles.input}
+            value={to_city}
+            onChangeText={setTo}
+          />
+
+          <TextInput
+            placeholder="Time"
+            style={styles.input}
+            value={time}
+            onChangeText={setTime}
+          />
+
+          <TouchableOpacity style={styles.btn} onPress={handleSearch}>
+            <Text style={{ color: "#fff" }}>Search Ride</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => setOpen(false)}>
+            <Text style={styles.closeText}>Close</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* AVAILABLE TRIPS */}
+      <Text style={styles.sectionTitle}>Available Trips</Text>
+
+      {loading ? (
+        <Text style={{ textAlign: "center" }}>Loading...</Text>
+      ) : (
+        <FlatList
+          data={trips}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => <ItemCard item={item} />}
+          ListEmptyComponent={() => (
+            <Text style={{ textAlign: "center", marginTop: 20 }}>
+              No trips available
+            </Text>
+          )}
         />
-
-        {/* SEARCH BOX */}
-        {!open && (
-            <TouchableOpacity
-                style={styles.collapsedCard}
-                onPress={() => setOpen(true)}
-            >
-              <Text style={styles.searchText}>🔍 Tap to search trips</Text>
-            </TouchableOpacity>
-        )}
-
-        {open && (
-            <View style={styles.card}>
-              <Text style={styles.title}>Search Trips</Text>
-
-              <TextInput
-                  placeholder="From"
-                  style={styles.input}
-                  value={from_city}
-                  onChangeText={setFrom}
-              />
-
-              <TextInput
-                  placeholder="To"
-                  style={styles.input}
-                  value={to_city}
-                  onChangeText={setTo}
-              />
-
-              <TextInput
-                  placeholder="Time"
-                  style={styles.input}
-                  value={time}
-                  onChangeText={setTime}
-              />
-
-              <TouchableOpacity style={styles.btn} onPress={handleSearch}>
-                <Text style={{ color: "#fff" }}>Search Ride</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => setOpen(false)}>
-                <Text style={styles.closeText}>Close</Text>
-              </TouchableOpacity>
-
-
-            </View>
-        )}
-
-        {/* AVAILABLE TRIPS */}
-        <Text style={styles.sectionTitle}>Available Trips</Text>
-
-        {loading ? (
-            <Text style={{ textAlign: "center" }}>Loading...</Text>
-        ) : (
-            <FlatList
-                data={trips}
-                keyExtractor={(item) => String(item.id)}
-                renderItem={({ item }) => <ItemCard item={item} />}
-                ListEmptyComponent={() => (
-                    <Text style={{ textAlign: "center", marginTop: 20 }}>
-                      No trips available
-                    </Text>
-                )}
-            />
-        )}
-
-
-
-
-
-
-
-      </View>
+      )}
+    </View>
   );
 }
 const styles = StyleSheet.create({
@@ -462,7 +449,7 @@ const styles = StyleSheet.create({
   },
 
   btn: {
-    backgroundColor: "#d86828",
+    backgroundColor: "#E55C16",
     padding: 12,
     borderRadius: 10,
     alignItems: "center",
