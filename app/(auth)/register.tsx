@@ -33,7 +33,10 @@ export default function RegisterScreen() {
         },
 
         onError: (err: any) => {
-
+            Alert.alert(
+                "Error",
+                JSON.stringify(err?.response?.data || err.message)
+            );
         },
     });
 
@@ -81,6 +84,7 @@ export default function RegisterScreen() {
                 <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
                     <Text style={styles.buttonText}>Create Your Account</Text>
                 </TouchableOpacity>
+
             </View>
             <View style={{flex: 1}}/>
             <View style={styles.a}>
