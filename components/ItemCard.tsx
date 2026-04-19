@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {BookingApi} from "@/api/TripDetaild";
 
 type Item = {
   id: number;
@@ -9,8 +10,12 @@ type Item = {
   transport: string;
   price: number;
   passengers: number;
-  driver_name: string;
-  driver_image: string;
+  driver: {
+    user: {
+      full_name: string;
+      profile_picture: string;
+    }
+  };
 };
 
 type Props = {
@@ -19,6 +24,7 @@ type Props = {
 };
 
 export default function ItemCard({ item, onPress }: Props) {
+
   return (
     <View style={styles.card}>
       <View style={styles.header}>
@@ -40,11 +46,11 @@ export default function ItemCard({ item, onPress }: Props) {
       <View style={styles.bottomcard}>
         <View style={styles.driverRow}>
           <Image
-            source={{ uri: item.driver_image }}
+            source={{ uri: item.driver?.user?.profile_picture }}
             style={styles.driverImage}
           />
 
-          <Text style={styles.driverName}>{item.driver_name}</Text>
+          <Text style={styles.driverName}>{item.driver?.user?.full_name}</Text>
         </View>
 
         <TouchableOpacity

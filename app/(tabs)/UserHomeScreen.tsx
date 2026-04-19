@@ -252,8 +252,12 @@ type Trip = {
   transport: string;
   price: number;
   passengers: number;
-  driver_name: string;
-  driver_image: string;
+  driver: {
+    user: {
+      full_name: string;
+      profile_picture: string;
+    };
+  };
 };
 
 export default function UserHomeScreen() {
