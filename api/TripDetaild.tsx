@@ -5,8 +5,7 @@ export type BookingData =
         WantRepeat:boolean;
         SelectedDays?:string[];
         dateOfEndRepeat?: string | null;
-    // TripId?:number;
-         }
+        Trip_id?:number}
 export const BookingApi = (data : BookingData) => {
     return baseApi.post("/booking", data);
 };

@@ -4,7 +4,7 @@ import {useState} from "react";
 import CardInfoTrip from "./CardInfoTrip";
 import {BookingApi,BookingData} from "@/api/TripDetaild";
 
-export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bookedSeats,totalSeats, departureTime, arrivalTime, date, note,id,onChangeSeat}:any)  {
+export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bookedSeats,totalSeats, departureTime, arrivalTime, date, note,id ,onChangeSeat}:any)  {
 
 
     const [showBooking,setShowBooking]=useState(false);
@@ -47,39 +47,25 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
         }
         setEndDate(formatted);
     };
-    const handleConfirm=()=>{
+    const handleConfirm =async ()=>{
 
-        const data : BookingData = {NumSeat: seats,
+        const data: BookingData = {
+            NumSeat: seats,
             WantRepeat: repeat,
             SelectedDays: repeat ? selectedDays : [],
-            dateOfEndRepeat: repeat ? endDate : null};
-        data.NumSeat=seats;
-        data.WantRepeat=repeat;
-        data.SelectedDays=selectedDays;
-        data.dateOfEndRepeat=endDate;
-        onChangeSeat(bookedSeats+seats);
-        setShowBooking(false);
-        BookingApi(data);
+            dateOfEndRepeat: repeat ? endDate : null,
+            Trip_id:id,
+        };
+
+        try {
+            await BookingApi(data);
+            onChangeSeat(bookedSeats + seats);
+            setShowBooking(false);
+
+        } catch (err) {
+            console.log(err);
+        }
     }
-    // const handleConfirm =async ()=>{
-    //
-    //     const data: BookingData = {
-    //         NumSeat: seats,
-    //         WantRepeat: repeat,
-    //         SelectedDays: repeat ? selectedDays : [],
-    //         dateOfEndRepeat: repeat ? endDate : null,
-    //         Trip_id:id,
-    //     };
-    //
-    //     try {
-    //         await BookingApi(data);
-    //         onChangeSeat(bookedSeats + seats);
-    //         setShowBooking(false);
-    //
-    //     } catch (err) {
-    //         console.log(err);
-    //     }
-    // }
     return (
 
         <ScrollView style={styles.container}>
