@@ -25,10 +25,6 @@ export default function LoginScreen() {
         mutationFn: loginApi,
 
         onSuccess: async (res) => {
-            // const token = res.data.token;
-            //
-            // await SecureStore.setItemAsync("token", token);
-            // router.push("/UserHomeScreen")
 
             const token = res.data.token;
             const user = res.data.user;

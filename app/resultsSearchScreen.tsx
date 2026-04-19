@@ -50,7 +50,7 @@ export default function ResultsScreen() {
   const normalizeTime = (time?: string): string => {
     if (!time) return "";
 
-    // نطلع أول "HH:MM" فقط من أي نص
+
     const match = time.match(/(\d{1,2}):(\d{2})/);
 
     if (match) {
@@ -60,7 +60,7 @@ export default function ResultsScreen() {
       return `${hours}:${minutes}`;
     }
 
-    // لو رقم فقط (مثلاً 9 → 09:00)
+
     const num = Number(time);
     if (!isNaN(num)) {
       return `${String(num).padStart(2, "0")}:00`;
@@ -133,7 +133,7 @@ export default function ResultsScreen() {
         />
       </View>
 
-      {/* FILTER */}
+
       <SortFilterDropdown
         filters={filters}
         onChange={(newFilters) => setFilters(newFilters)}
