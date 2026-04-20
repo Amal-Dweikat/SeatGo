@@ -1,6 +1,5 @@
 import { router } from "expo-router";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import {BookingApi} from "@/api/TripDetaild";
 
 type Item = {
   id: number;
@@ -23,7 +22,7 @@ type Props = {
   onPress?: () => void;
 };
 
-export default function ItemCard({ item, onPress }: Props) {
+export default function ItemCard({ item }: Props) {
 
   return (
     <View style={styles.card}>
