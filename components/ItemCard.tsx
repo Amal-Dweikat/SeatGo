@@ -1,63 +1,58 @@
 import { router } from "expo-router";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type Item = {
   id: number;
-  from_city: string;
-  to_city: string;
-  time: string;
+  FromCity: string;
+  ToCity: string;
+  DepartureTime: string;
   transport: string;
-  price: number;
-  passengers: number;
-  driver: {
-    user: {
-      full_name: string;
-      profile_picture: string;
-    }
-  };
+  Price: number;
+  BookedSeats: number;
+  driver_name: string;
+  driver_image: string;
 };
 
 type Props = {
   item: Item;
-  onPress?: () => void;
 };
 
 export default function ItemCard({ item }: Props) {
-
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.city}>
-          📍 {item.from_city} → {item.to_city}
+          📍 {item.FromCity} → {item.ToCity}
         </Text>
 
-        <Text style={styles.price}>{item.price} ₪</Text>
+        <Text style={styles.price}>{item.Price} ₪</Text>
       </View>
 
       <View style={styles.row}>
-        <Text style={styles.timetag}>{item.time}</Text>
+        <Text>{item.DepartureTime}</Text>
       </View>
+
       <View style={styles.row}>
         <Text style={styles.tag}>🚗 {item.transport}</Text>
-        <Text style={styles.tag}>👥 {item.passengers} people</Text>
+        <Text>{item.BookedSeats} people</Text>
+      </View>
+      <View style={styles.row}>
+        <Text style={styles.tag}> {item.driver_image}</Text>
+        <Text>{item.driver_name}</Text>
       </View>
 
       <View style={styles.bottomcard}>
-        <View style={styles.driverRow}>
-          <Image
-            source={{ uri: item.driver?.user?.profile_picture }}
-            style={styles.driverImage}
-          />
-
-          <Text style={styles.driverName}>{item.driver?.user?.full_name}</Text>
-        </View>
-
         <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push(`/${item.id}`)}
-        >
-          <Text style={styles.buttonText}>View Details</Text>
-        </TouchableOpacity>
+  style={styles.button}
+  onPress={() =>
+    router.push({
+      pathname: "/(Trip)/[id]",
+      params: { id: item.id },
+    })
+  }
+>
+  <Text style={styles.buttonText}>View Details</Text>
+</TouchableOpacity>
       </View>
     </View>
   );
@@ -69,28 +64,17 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 12,
     borderRadius: 16,
-
-    // shadow iOS
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 5 },
-
-    // shadow Android
     elevation: 4,
   },
 
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 2,
   },
 
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#000000",
-    flex: 1,
+  city: {
+    fontSize: 16,
+    color: "#000",
   },
 
   price: {
@@ -99,32 +83,26 @@ const styles = StyleSheet.create({
     color: "#4A90E2",
   },
 
-  city: {
-    fontSize: 16,
-    color: "#000000",
-    marginBottom: 10,
-  },
-
   row: {
     flexDirection: "row",
     gap: 10,
+    marginTop: 5,
   },
 
   tag: {
     backgroundColor: "#f2f6ff",
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-    fontSize: 12,
-    color: "#333",
+    padding: 5,
+    borderRadius: 10,
   },
-  timetag: {
-    marginBottom: 2,
-    paddingVertical: 5,
+
+  bottomcard: {
+    marginTop: 15,
+    flexDirection: "row",
+    justifyContent: "flex-end",
   },
 
   button: {
-    backgroundColor: "#ff9914",
+    backgroundColor: "#E55C16",
     padding: 10,
     borderRadius: 10,
   },
@@ -132,49 +110,5 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
-  },
-  bottomcard: {
-    marginTop: 15,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  driverRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  driverImage: {
-    width: 35,
-    height: 35,
-    borderRadius: 18,
-    marginRight: 10,
-    backgroundColor: "#ddd",
-  },
-
-  driverName: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
-  },
-  searchCard: {
-    backgroundColor: "#fff",
-    margin: 15,
-    marginTop: -20,
-    padding: 15,
-    borderRadius: 12,
-    elevation: 5,
-  },
-
-  searchText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-  },
-
-  searchSubText: {
-    marginTop: 5,
-    color: "#777",
   },
 });

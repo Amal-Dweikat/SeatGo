@@ -12,7 +12,6 @@ import axios, { AxiosError } from "axios";
 export default function TripDetails() {
     const [loading, setLoading] = useState(true);
     const { id } = useLocalSearchParams();
-    // const tripId = Array.isArray(id) ? id[0] : id;
     const tripId = id ? Number(id) : null;
 
 
@@ -28,33 +27,15 @@ export default function TripDetails() {
     const [trip, setTrip] = useState<any>(null);
     const [driver, setDriver] = useState<any>(null);
     const [car, setCar] = useState<any>(null);
-    // useEffect(() => {
-    //     const fetchTrip = () => {
-    //         returnTripInfo(Number(tripId))
-    //
-    //             .then(res => {
-    //                 setTrip(res.data.Trip)
-    //                 setCar(res.data.Cars)
-    //                 setDriver(res.data.Drivers)
-    //                 setBookedSeats(res.data.Trip.BookedSeats);
-    //             })
-    //             .catch(console.log);
-    //     };
-    //
-    //     fetchTrip();
-    //
-    //     const interval = setInterval(fetchTrip, 9000000);
-    //
-    //     return () => clearInterval(interval);
-    // }, [tripId]);
+
     useEffect(() => {
         const fetchTrip = async () => {
-            console.log("START FETCH"); // اختبار
+            console.log("START FETCH");
 
             try {
                 const res = await returnTripInfo(Number(tripId));
 
-                console.log("RESPONSE OK"); // اختبار
+                console.log("RESPONSE OK");
 
                 setTrip(res.data.Trip);
                 setCar(res.data.Cars);
@@ -69,7 +50,7 @@ export default function TripDetails() {
                     console.log("NON AXIOS ERROR:", err);
                 }
             } finally {
-                console.log("FINALLY FIRED"); // لازم يظهر دائمًا
+                console.log("FINALLY FIRED");
                 setLoading(false);
             }
         };
@@ -88,7 +69,7 @@ export default function TripDetails() {
         <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.container}>
 
-            {/* Wave */}
+
             <View style={styles.header}>
                 <View style={styles.waveContainer}>
 

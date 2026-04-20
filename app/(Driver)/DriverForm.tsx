@@ -22,16 +22,17 @@ export default function DriverForm() {
 
         onSuccess: async (res) => {
             Alert.alert("Success", "Driver request submitted!");
+            router.push("/DriverHomePage")
         },
 
         onError: (err: any) => {
-            Alert.alert("Error", "Something went wrong");
+
             console.log(err?.response?.data);
         },
     });
     const onSubmit = (data: any) => {
         driverMutation.mutate(data);
-         router.push("/DriverHomePage")
+
     };
 
     return (
