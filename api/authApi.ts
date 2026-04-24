@@ -27,3 +27,21 @@ export const getMeApi = () => {
 export const logoutApi = () => {
     return baseApi.post("/logout");
 };
+
+
+
+export const forgotPasswordApi = (data: { email: string }) => {
+    return baseApi.post("/forgot-password", data);
+};
+
+export const verifyCodeApi = (data: { email: string; code: string }) => {
+    return baseApi.post("/verify-code", data);
+};
+
+export const resetPasswordApi = (data: {
+    email: string;
+    code: string;
+    password: string;
+}) => {
+    return baseApi.post("/reset-password", data);
+};
