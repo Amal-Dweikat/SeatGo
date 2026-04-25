@@ -96,7 +96,7 @@ export default function TripDetails() {
                 </View>
         </View>
             <View style={styles.content}>
-                 <CardInfoDriver name={driver?.full_name} phone={driver?.phone_number} rating={driver?.average_rating} typeCar={car?.type} colorCar={car?.color} plateNum={car?.plate_number} ></CardInfoDriver>
+                 <CardInfoDriver name={driver?.full_name} phone={driver?.phone_number} rating={driver?.average_rating} typeCar={car?.type} colorCar={car?.color} plateNum={car?.plate_number} image={driver?.profile_picture} ></CardInfoDriver>
 
                  <View style={styles.cardComplete}>
                      <TripCard
@@ -126,7 +126,6 @@ const { width, height } = Dimensions.get('window');
 const styles= StyleSheet.create({
 
     container: {
-
         flex: 1,
         gap:60,
         backgroundColor: "#F2F2F2",
