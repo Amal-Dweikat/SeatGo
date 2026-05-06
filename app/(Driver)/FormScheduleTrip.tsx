@@ -25,7 +25,8 @@ export default function FormScheduleTrip(){
             DriverSelectedDays:answer ? selectedDays : null,
             EndRepeat: answer ? endDate : null,
         };
-        scheduleTrip(payload);
+        await scheduleTrip(payload);
+
         router.replace("/home");
     };
     const toggleDay = (day: string) => {
@@ -68,16 +69,16 @@ export default function FormScheduleTrip(){
     <View style={styles.content}>
     <View style={styles.cardInfoDr}>
        <InputCityRow
-       label={"FROM"}
-       nameCity={"FromCity"}
+       label="FROM"
+       nameCity="FromCity"
        nameArea={"SpecificFromArea"}
        iconName={"radio-button-on-outline"}
        showDot={true}
        control={control}
        />
         <InputCityRow
-            label={"TO"}
-            nameCity={"ToCity"}
+            label="TO"
+            nameCity="ToCity"
             nameArea={"SpecificToArea"}
             iconName={"location-outline"}
             showDot={false}
@@ -85,12 +86,13 @@ export default function FormScheduleTrip(){
         />
 
     </View>
+
     <View style={styles.cardComplete}>
         <View style={styles.row }>
             <InputGridCell
                 leftCell={true}
                 rightCell={false}
-                name={"price"}
+                name="price"
                 control={control}
                 placeholder={"ILS $"}
                 text={"Price Trip"}
@@ -99,7 +101,7 @@ export default function FormScheduleTrip(){
             <InputGridCell
                 leftCell={false}
                 rightCell={true}
-                name={"date"}
+                name="date"
                 control={control}
                 placeholder={"YYYY-MM-DD"}
                 text={"Date Trip"}
@@ -112,7 +114,7 @@ export default function FormScheduleTrip(){
             <InputGridCell
                 leftCell={true}
                 rightCell={false}
-                name={"time"}
+                name="time"
                 control={control}
                 placeholder={"HH:MM"}
                 text={"Departure Time"}
@@ -120,38 +122,40 @@ export default function FormScheduleTrip(){
             <InputGridCell
                 leftCell={false}
                 rightCell={true}
-                name={"setas"}
+                name="setas"
                 control={control}
                 placeholder={"Number Seats"}
                 text={"Available Seats"}
-                nameIcon={"people-outline"}/>        </View>
+                nameIcon={"people-outline"}/>
+
      </View>
+    </View>
+
 <View style={styles.cardComplete}>
     <ScrollView style={[styles.container,{padding:5,backgroundColor: "#F5F5F5",marginBottom:5}]}>
-        <Text style={styles.text}>Transport</Text>
+        <Text style={styles.text}>{"Transport"}</Text>
         <FormInput control={control} name={"transport"} placeholder={"Select transport such as 'Bus,Car'"}/>
         <View style={[styles.horizontalLine,{marginBottom:5,}]} />
-        <Text style={styles.text}>Note</Text>
+        <Text style={styles.text}>{"Note"}</Text>
         <FormInput control={control} name={"note"} placeholder={"Write note for passengers "}/>
         <View style={[styles.horizontalLine,{marginBottom:5,}]} />
-        <Text style={styles.text}>Do you want this trip to be a recurring one?</Text>
+        <Text style={styles.text}>{"Do you want this trip to be a recurring one?"}</Text>
         <View style={styles.pickerBox}>
             <Picker
                 selectedValue={answer}
                 onValueChange={(itemValue) => setAnswer(itemValue)}
             >
-                <Picker.Item label="Select answer" value="" />
-                <Picker.Item label="True" value={true} />
+                <Picker.Item label="True" value={true}/>
                 <Picker.Item label="False" value={false} />
             </Picker>
 
         </View>
-        { answer &&  (
+        { answer  &&  (
             <>
                 <View style={[styles.horizontalLine,{marginBottom:5,}]} />
 
                 <View style={styles.daysContainer}>
-                    <Text style={[styles.noteContent,{marginBottom:20}]}>{"Choose the days on which you want to repeat the trip"}</Text>
+                    <Text style={[styles.noteContent,{marginBottom:20}]}>Choose the days on which you want to repeat the trip</Text>
                     {days.map((day) => {
                         const isSelected = selectedDays.includes(day);
 
@@ -183,7 +187,7 @@ export default function FormScheduleTrip(){
 
                     <TextInput
                         placeholder="End date for repeat: YYYY-MM-DD"
-                        value={endDate}
+                        value={endDate || ""}
                         onChangeText={formatDate}
                         style={{ flex: 1 }}
                     />
@@ -191,7 +195,7 @@ export default function FormScheduleTrip(){
             </>
         )}
         <TouchableOpacity  style={styles.button} onPress={handleSubmit(onSubmit)} >
-        <Text style={{color:"white"}}>Schedule</Text>
+        <Text style={{color:"white"}}>{"Schedule"}</Text>
         </TouchableOpacity>
     </ScrollView>
 </View>
