@@ -1,6 +1,10 @@
+import { searchTrips } from "@/api/searchApi";
+import Hero from "@/components/Hero";
+import ItemCard from "@/components/ItemCard";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  FlatList,
   StyleSheet,
   Text,
   TextInput,
@@ -8,13 +12,51 @@ import {
   View,
 } from "react-native";
 
-export default function SearchScreen() {
+type Trip = {
+  id: number;
+  FromCity: string;
+  ToCity: string;
+  DepartureTime: string;
+  transport: string;
+  Price: number;
+  BookedSeats: number;
+  driver_name: string;
+  driver_image: string;
+};
+
+export default function UserHomeScreen() {
   const router = useRouter();
+
   const [open, setOpen] = useState(false);
 
   const [from_city, setFrom] = useState("");
   const [to_city, setTo] = useState("");
   const [time, setTime] = useState("");
+
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const loadTrips = async () => {
+      try {
+        setLoading(true);
+
+        const result = await searchTrips({
+          FromCity: "",
+          ToCity: "",
+          DepartureTime: "",
+        });
+
+        setTrips(result);
+      } catch (e) {
+        console.log("LOAD ERROR:", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTrips();
+  }, []);
 
   const handleSearch = () => {
     router.push({
@@ -23,20 +65,27 @@ export default function SearchScreen() {
         from: from_city,
         to: to_city,
         time: time,
-        price: filters.price ?? "",
-        passengers: filters.passengers ?? "",
-        sortTime: filters.time ?? "",
       },
     });
   };
-  const [filters, setFilters] = useState({
-    price: null as "low" | "high" | null,
-    passengers: null as number | null,
-    time: null as "earliest" | "latest" | null,
-  });
+
+  const [id, setid] = useState("");
+  const handlepress = (id: any) => {
+    router.push(id);
+  };
 
   return (
     <View style={styles.container}>
+      {/* HERO */}
+      <Hero
+        image={require("@/assets/img.png")}
+        title={"Share Your Ride,\n and earn money !"}
+        subtitle={"Offer available seats in your car\n and make extra income"}
+        buttonText="Become a Driver"
+        onPress={() => router.push("/DriverForm")}
+      />
+
+      {/* SEARCH BOX */}
       {!open && (
         <TouchableOpacity
           style={styles.collapsedCard}
@@ -52,7 +101,6 @@ export default function SearchScreen() {
 
           <TextInput
             placeholder="From"
-            placeholderTextColor="#888"
             style={styles.input}
             value={from_city}
             onChangeText={setFrom}
@@ -60,66 +108,18 @@ export default function SearchScreen() {
 
           <TextInput
             placeholder="To"
-            placeholderTextColor="#888"
             style={styles.input}
             value={to_city}
             onChangeText={setTo}
           />
 
           <TextInput
-            placeholder="Time (e.g 08:00)"
-            placeholderTextColor="#888"
+            placeholder="Time"
             style={styles.input}
             value={time}
             onChangeText={setTime}
           />
 
-          {/* <TouchableOpacity
-            style={[
-              styles.filterBtn,
-              filters.price === "low" && { backgroundColor: "#4A90E2" },
-            ]}
-            onPress={() =>
-              setFilters({
-                ...filters,
-                price: filters.price === "low" ? null : "low",
-              })
-            }
-          >
-        <Text>💰 Low Price</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.filterBtn,
-              filters.passengers === 4 && { backgroundColor: "#4A90E2" },
-            ]}
-            onPress={() =>
-              setFilters({
-                ...filters,
-                passengers: filters.passengers === 4 ? null : 4,
-              })
-            }
-          >
-            <Text>👥 4+ Passengers</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.filterBtn,
-              filters.time === "earliest" && { backgroundColor: "#4A90E2" },
-            ]}
-            onPress={() =>
-              setFilters({
-                ...filters,
-                time: filters.time === "earliest" ? null : "earliest",
-              })
-            }
-          >
-            <Text>⏰ Earliest</Text>
-          </TouchableOpacity>
-      */}
-          {/* SEARCH BUTTON */}
           <TouchableOpacity style={styles.btn} onPress={handleSearch}>
             <Text style={{ color: "#fff" }}>Search Ride</Text>
           </TouchableOpacity>
@@ -129,15 +129,30 @@ export default function SearchScreen() {
           </TouchableOpacity>
         </View>
       )}
+
+      {/* AVAILABLE TRIPS */}
+      <Text style={styles.sectionTitle}>Available Trips</Text>
+
+      {loading ? (
+        <Text style={{ textAlign: "center" }}>Loading...</Text>
+      ) : (
+        <FlatList
+          data={trips}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => <ItemCard item={item} />}
+          ListEmptyComponent={() => (
+            <Text style={{ textAlign: "center", marginTop: 20 }}>
+              No trips available
+            </Text>
+          )}
+        />
+      )}
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 20,
     backgroundColor: "#f5f5f5",
   },
 
@@ -145,6 +160,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 18,
     borderRadius: 15,
+    margin: 10,
     elevation: 5,
     alignItems: "center",
   },
@@ -159,6 +175,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 18,
     borderRadius: 15,
+    margin: 10,
     elevation: 5,
   },
 
@@ -176,12 +193,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
-  filterTitle: {
-    marginTop: 10,
-    fontWeight: "600",
-    color: "#555",
-  },
-
   filtersRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -197,8 +208,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
+  active: {
+    backgroundColor: "#4A90E2",
+  },
+
   btn: {
-    backgroundColor: "#d86828",
+    backgroundColor: "#E55C16",
     padding: 12,
     borderRadius: 10,
     alignItems: "center",
@@ -209,6 +224,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
     textAlign: "center",
     color: "#888",
-    fontWeight: "600",
+  },
+
+  sectionTitle: {
+    marginTop: 10,
+    marginBottom: 6,
+    marginLeft: 10,
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

@@ -1,11 +1,14 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type Filters = {
-  passengers: number | null;
-  sort: "new" | "old" | null;
-  price: "low" | "high" | null;
-  time: "earliest" | "latest" | null;
+  minPassengers: number | null;
+
+  sortByDate: "newest" | "oldest" | null;
+
+  sortByPrice: "LowToHigh" | "HighToLow" | null;
+
+  sortByTime: "earliest" | "latest" | "closest" | null;
 };
 
 type Props = {
@@ -23,16 +26,12 @@ export default function SortFilterDropdown({ filters, onChange }: Props) {
   const renderDropdown = (
     label: string,
     key: keyof Filters,
-    options: (string | number)[]
+    options: (string | number)[],
   ) => {
     return (
       <View style={styles.dropdown}>
-        
         {/* header */}
-        <TouchableOpacity
-          style={styles.header}
-          onPress={() => toggle(key)}
-        >
+        <TouchableOpacity style={styles.header} onPress={() => toggle(key)}>
           <Text style={styles.label}>
             {label}: {filters[key] ?? "All"}
           </Text>
@@ -45,10 +44,7 @@ export default function SortFilterDropdown({ filters, onChange }: Props) {
             {options.map((opt) => (
               <TouchableOpacity
                 key={String(opt)}
-                style={[
-                  styles.option,
-                  filters[key] === opt && styles.active,
-                ]}
+                style={[styles.option, filters[key] === opt && styles.active]}
                 onPress={() => {
                   onChange({
                     ...filters,
@@ -68,10 +64,13 @@ export default function SortFilterDropdown({ filters, onChange }: Props) {
 
   return (
     <View style={styles.container}>
-      {renderDropdown("Passengers", "passengers", [2, 5, 10, 15])}
-      {renderDropdown("Sort", "sort", ["new", "old"])}
-      {renderDropdown("Price", "price", ["low", "high"])}
-      {renderDropdown("Time", "time", ["earliest", "latest"])}
+      {renderDropdown("Passengers at least", "minPassengers", [2, 5, 10, 15])}
+      {renderDropdown("Sort", "sortByDate", ["newest", "oldest"])}
+      {renderDropdown("Price", "sortByPrice", [
+        "LowToHigh",
+        "HighToLow",
+      ])}
+      {renderDropdown("Time", "sortByTime", ["earliest", "latest"])}
     </View>
   );
 }
@@ -87,12 +86,11 @@ const styles = StyleSheet.create({
 
   dropdown: {
     backgroundColor: "#fff",
-    width: "48%",         
+    width: "48%",
     borderRadius: 12,
     padding: 8,
     marginBottom: 10,
 
-    
     elevation: 2,
   },
 

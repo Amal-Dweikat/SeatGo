@@ -1,34 +1,31 @@
+import Hero from "@/components/Hero";
 import SortFilterDropdown from "@/components/SortFilterDropdown";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import {
-  FlatList,
-  ImageBackground,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { searchTrips } from "../api/api";
+import { FlatList, StyleSheet, Text, View } from "react-native";
+import { searchTrips } from "../api/searchApi";
 import ItemCard from "../components/ItemCard";
 
 type Item = {
   id: number;
-  from_city: string;
-  to_city: string;
-  time: string;
+  FromCity: string;
+  ToCity: string;
+  DepartureTime: string;
   transport: string;
-  price: number;
-  passengers: number;
+  Price: number;
+  BookedSeats: number;
   driver_name: string;
   driver_image: string;
 };
 
 type Filters = {
-  passengers: number | null;
-  sort: "new" | "old" | null;
-  price: "low" | "high" | null;
-  time: "earliest" | "latest" | null;
+  minPassengers: number | null;
+
+  sortByDate: "newest" | "oldest" | null;
+
+  sortByPrice: "LowToHigh" | "HighToLow" | null;
+
+  sortByTime: "earliest" | "latest" | "closest" | null;
 };
 
 export default function ResultsScreen() {
@@ -44,20 +41,32 @@ export default function ResultsScreen() {
   const [loading, setLoading] = useState(false);
 
   const [filters, setFilters] = useState<Filters>({
-    passengers: null,
-    sort: null,
-    price: null,
-    time: null,
+    minPassengers: null,
+    sortByDate: null,
+    sortByPrice: null,
+    sortByTime: null,
   });
 
   const normalizeTime = (time?: string): string => {
     if (!time) return "";
 
-    if (/^\d$/.test(time)) return `0${time}:00`;
-    if (/^\d{2}$/.test(time)) return `${time}:00`;
-    if (/^\d{2}:\d{2}$/.test(time)) return time;
 
-    return time;
+    const match = time.match(/(\d{1,2}):(\d{2})/);
+
+    if (match) {
+      const hours = match[1].padStart(2, "0");
+      const minutes = match[2];
+
+      return `${hours}:${minutes}`;
+    }
+
+
+    const num = Number(time);
+    if (!isNaN(num)) {
+      return `${String(num).padStart(2, "0")}:00`;
+    }
+
+    return "";
   };
 
   useEffect(() => {
@@ -66,9 +75,9 @@ export default function ResultsScreen() {
         setLoading(true);
 
         const result = await searchTrips({
-          from_city: (fromValue ?? "").toLowerCase().trim(),
-          to_city: (toValue ?? "").toLowerCase().trim(),
-          time: normalizeTime(timeValue ?? ""),
+          FromCity: (fromValue ?? "").toLowerCase().trim(),
+          ToCity: (toValue ?? "").toLowerCase().trim(),
+          DepartureTime: normalizeTime(timeValue ?? ""),
         });
 
         setData(result);
@@ -89,51 +98,42 @@ export default function ResultsScreen() {
 
   const filteredData = data
     .filter((item) => {
-      if (filters.passengers) {
-        return item.passengers >= filters.passengers;
+      if (filters.minPassengers) {
+        return item.BookedSeats >= filters.minPassengers;
       }
       return true;
     })
     .sort((a, b) => {
-      if (filters.price === "low") return a.price - b.price;
-      if (filters.price === "high") return b.price - a.price;
+      if (filters.sortByPrice === "LowToHigh") return a.Price - b.Price;
+      if (filters.sortByPrice === "HighToLow") return b.Price - a.Price;
 
-      if (filters.time === "earliest") {
-        return timeToMinutes(a.time) - timeToMinutes(b.time);
+      if (filters.sortByTime === "earliest") {
+        return timeToMinutes(a.DepartureTime) - timeToMinutes(b.DepartureTime);
       }
 
-      if (filters.time === "latest") {
-        return timeToMinutes(b.time) - timeToMinutes(a.time);
+      if (filters.sortByTime === "latest") {
+        return timeToMinutes(b.DepartureTime) - timeToMinutes(a.DepartureTime);
       }
 
-      if (filters.sort === "new") return b.id - a.id;
-      if (filters.sort === "old") return a.id - b.id;
+      if (filters.sortByDate === "newest") return b.id - a.id;
+      if (filters.sortByDate === "oldest") return a.id - b.id;
 
       return 0;
     });
 
   return (
     <View style={{ flex: 1 }}>
-      {/* HEADER */}
-      <ImageBackground
-        source={{
-          uri: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
-        }}
-        style={styles.header}
-      >
-        <View style={styles.overlay}>
-          <Text style={styles.title}>Trips from</Text>
-          <Text style={styles.subtitle}>
-            {fromValue} → {toValue}
-          </Text>
+      <View style={{ position: "relative" }}>
+        <Hero
+          image={require("@/assets/img.png")}
+          title={`Trips from\n${fromValue} → ${toValue}`}
+          subtitle="Find the best available rides"
+          buttonText="Edit search"
+          onPress={() => router.back()}
+        />
+      </View>
 
-          <TouchableOpacity onPress={() => router.back()}>
-            <Text style={styles.backLink}>Edit search</Text>
-          </TouchableOpacity>
-        </View>
-      </ImageBackground>
 
-      {/* FILTER */}
       <SortFilterDropdown
         filters={filters}
         onChange={(newFilters) => setFilters(newFilters)}
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   backLink: {
     marginTop: 10,
     color: "#fff",
-    backgroundColor: "#ff9914",
+    backgroundColor: "#E55C16",
     padding: 8,
     borderRadius: 10,
     width: 100,
