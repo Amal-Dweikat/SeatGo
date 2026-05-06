@@ -29,7 +29,7 @@ export default function RegisterScreen() {
             const token = res.data.token;
             await SecureStore.setItemAsync("token", token);
 
-            router.push("/UserHomeScreen");
+            router.push("/home");
         },
 
         onError: (err: any) => {

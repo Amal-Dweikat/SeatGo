@@ -16,6 +16,7 @@ type Item = {
   BookedSeats: number;
   driver_name: string;
   driver_image: string;
+  DateTrip:string;
 };
 
 type Filters = {

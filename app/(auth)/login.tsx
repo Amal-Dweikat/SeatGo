@@ -31,15 +31,15 @@ export default function LoginScreen() {
 
 
             await SecureStore.setItemAsync("token", token);
-
+            await SecureStore.setItemAsync("role", user.role);
 
             if (user.role === 'driver') {
-                router.replace("/DriverHomePage");
+                router.replace("/home");
             } else if (user.role === 'passenger') {
-                router.replace("/UserHomeScreen");
+                router.replace("/home");
             } else {
 
-                router.replace("/UserHomeScreen");
+                router.replace("/home");
             }
         },
 

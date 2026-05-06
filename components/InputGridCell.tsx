@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     },
     cellLabel: {
         fontSize: 10,
-        //fontWeight: 'bold',
+        marginBottom:1,
         color: '#333',
     }
 });

@@ -109,6 +109,7 @@ export default function TripDetails() {
                          arrivalTime={trip?.ArrivalTime}
                          date={trip?.DateTrip}
                          note={trip?.note}
+                         TripRepeat={trip?.TripRepeat}
                          bookedSeats={bookedSeats}
                          totalSeats=   {trip?.TotalSeats}
                          id={tripId}
