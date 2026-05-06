@@ -7,19 +7,28 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState("");
 
   const sendCode = async () => {
-    try {
-      await forgotPasswordApi({ email });
+  try {
+    console.log("Sending email:", email);
 
-      Alert.alert("Success", "Code sent");
+    const res = await forgotPasswordApi({ email });
 
-      router.push({
-        pathname: "/VerifyCode",
-        params: { email },
-      });
-    } catch (err) {
-      Alert.alert("Error", "Something went wrong");
-    }
-  };
+    console.log("SUCCESS RESPONSE:", res.data);
+
+    Alert.alert("Success", "Code sent");
+
+    router.push({
+      pathname: "/VerifyCode",
+      params: { email },
+    });
+
+  } catch (err: any) {
+    console.log("FULL ERROR:", err);
+    console.log("RESPONSE ERROR:", err?.response?.data);
+    console.log("MESSAGE:", err.message);
+
+    Alert.alert("Error", "Check console");
+  }
+};
 
   return (
     <View style={styles.container}>

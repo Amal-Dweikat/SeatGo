@@ -15,37 +15,49 @@ export default function VerifyCode() {
   const [code, setCode] = useState("");
 
   const verify = async () => {
-    if (!code) {
-      Alert.alert("Error", "Please enter the code");
-      return;
-    }
+  try {
+    console.log("VERIFY CLICKED");
 
-    try {
-      await verifyCodeApi({
-        email: email as string,
-        code,
-      });
+    const res = await verifyCodeApi({
+      email: email as string,
+      code,
+    });
 
-      router.push({
-        pathname: "/ResetPassword",
-        params: { email, code },
-      });
-    } catch (err: any) {
-      Alert.alert("Error", err?.response?.data?.message || "Invalid code");
-    }
-  };
+    console.log("VERIFY SUCCESS:", res.data);
+
+    Alert.alert("Success", "Code verified successfully", [
+      {
+        text: "OK",
+        onPress: () => {
+          router.push({
+            pathname: "/ResetPassword",
+            params: { email, code },
+          });
+        },
+      },
+    ]);
+
+  } catch (err: any) {
+    console.log("VERIFY ERROR:", err?.response?.data);
+
+    Alert.alert(
+      "Error",
+      err?.response?.data?.message || "Invalid code"
+    );
+  }
+};
 
   const resendCode = async () => {
-    try {
-      await forgotPasswordApi({
-        email: email as string,
-      });
+  try {
+    await forgotPasswordApi({
+      email: email as string,
+    });
 
-      Alert.alert("Success", "New code sent");
-    } catch (err: any) {
-      Alert.alert("Error", "Failed to resend code");
-    }
-  };
+    Alert.alert("Success", "A new code has been sent to your email 📩");
+  } catch (err: any) {
+    Alert.alert("Error", "Failed to resend code");
+  }
+};
 
   return (
     <View style={styles.container}>

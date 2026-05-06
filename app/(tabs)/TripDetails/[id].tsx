@@ -6,6 +6,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -22,7 +23,7 @@ type TripType = {
 type BookingType = {
   id: number;
   status: string;
-  accepted_at?: string; 
+  accepted_at?: string;
   user: {
     full_name: string;
     image?: string;
@@ -44,17 +45,32 @@ export default function TripDetails() {
   const [pending, setPending] = useState<BookingType[]>([]);
   const [accepted, setAccepted] = useState<BookingType[]>([]);
 
+  const [editVisible, setEditVisible] = useState(false);
+
+  const [editData, setEditData] = useState({
+    FromCity: "",
+    ToCity: "",
+    DateTrip: "",
+    Price: 0,
+    available_seats: 0,
+  });
+
   const fetchTrip = async () => {
     try {
-      if (!tripId) return;
+      if (!tripId) {
+        console.log("No tripId found");
+        return;
+      }
+
+      console.log("Fetching trip:", tripId);
 
       const res = await api.get(`/trips/${tripId}`);
 
-    if (res.data.trip) setTrip(res.data.trip);   
-   setPending(res.data.pending ?? []);
+      setTrip(res.data.trip);
+      setPending(res.data.pending ?? []);
       setAccepted(res.data.accepted ?? []);
-    } catch (err) {
-      console.log(err);
+    } catch (err: any) {
+      console.log("FETCH ERROR:", err?.response?.data || err.message);
     }
   };
 
@@ -62,111 +78,166 @@ export default function TripDetails() {
     if (tripId) fetchTrip();
   }, [tripId]);
 
-  const deleteTrip = async () => {
-    Alert.alert("Delete Trip", "Are you sure you want to delete this trip?", [
-      { text: "Cancel", style: "cancel" },
-
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await api.delete(`/trips/${tripId}`);
-
-            console.log("Trip deleted ✔");
-
-            router.back();
-          } catch (err: any) {
-            console.log("DELETE ERROR:", err?.response?.data || err.message);
-            Alert.alert("Error", "Failed to delete trip");
-          }
+  const deleteTrip = () => {
+    Alert.alert(
+      "Delete Trip",
+      "Are you sure you want to delete this trip?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
         },
-      },
-    ]);
-  };
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              console.log("Deleting trip:", tripId);
 
+              await api.delete(`/trips/${tripId}`);
+
+              console.log("Trip deleted ");
+
+              router.back();
+            } catch (err: any) {
+              console.log("DELETE ERROR:", err?.response?.data || err.message);
+              Alert.alert("Error", "Failed to delete trip");
+            }
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
   const editTrip = () => {
-    console.log("Navigate to edit trip screen");
+    setEditData({
+      FromCity: trip.FromCity,
+      ToCity: trip.ToCity,
+      DateTrip: trip.DateTrip,
+      Price: trip.Price,
+      available_seats: trip.available_seats,
+    });
+
+    setEditVisible(true);
   };
 
-  const acceptBooking = async (bookingId: number) => {
-  try {
-    await api.post(`/booking/${bookingId}/accept`);
+  const updateTrip = async () => {
+    try {
+      await api.put(`/trips/${tripId}`, editData);
 
-    console.log("Accepted ✔");
+      setTrip(editData);
+      setEditVisible(false);
 
-    const acceptedUser = pending.find(b => b.id === bookingId);
-
-    if (acceptedUser) {
-      setPending(prev => prev.filter(b => b.id !== bookingId));
-      setAccepted(prev => [...prev, { ...acceptedUser, status: "accepted" }]);
+      Alert.alert("Success", "Trip updated successfully");
+    } catch (err: any) {
+      console.log(err?.response?.data || err.message);
+      Alert.alert("Error", "Update failed");
     }
+  };
+  const acceptBooking = async (bookingId: number) => {
+    try {
+      await api.post(`/booking/${bookingId}/accept`);
 
-  } catch (err: any) {
-    console.log("ACCEPT ERROR:", err?.response?.data || err.message);
-  }
-};
+      console.log("Accepted booking");
+
+      await fetchTrip();
+    } catch (err: any) {
+      console.log("ACCEPT ERROR:", err?.response?.data || err.message);
+    }
+  };
 
   const rejectBooking = async (bookingId: number) => {
     try {
       await api.post(`/booking/${bookingId}/reject`);
 
-      console.log("Rejected ");
+      console.log("Rejected booking");
 
-      fetchTrip(); 
+      fetchTrip();
     } catch (err: any) {
       console.log("REJECT ERROR:", err?.response?.data || err.message);
     }
   };
+
+  const removeAccepted = async (bookingId: number) => {
+    try {
+      await api.post(`/booking/${bookingId}/reject`);
+      await fetchTrip();
+
+      console.log("Removed from accepted");
+    } catch (err: any) {
+      console.log("REMOVE ERROR:", err?.response?.data || err.message);
+    }
+  };
+
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.route}>
-            {trip.FromCity} → {trip.ToCity}
-          </Text>
+      <View style={styles.tripCard}>
+        <View style={styles.tripTop}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.route}>
+              {trip.FromCity || "From ?"} → {trip.ToCity || "To ?"}
+            </Text>
 
-          <Text style={styles.date}>{trip.DateTrip}</Text>
+            <Text style={styles.date}>{trip.DateTrip}</Text>
+          </View>
 
-          <View style={styles.tripActions}>
+          <View style={styles.mapBox}>
+            {/* 
+      
+      <MapView
+  style={styles.map}
+  initialRegion={{
+    latitude: 31.95,
+    longitude: 35.23,
+    latitudeDelta: 0.5,
+    longitudeDelta: 0.5,
+  }}
+>
+  <Marker
+    coordinate={{
+      latitude: 31.95,
+      longitude: 35.23,
+    }}
+  />
+</MapView>
+
+      {/* مؤقت (placeholder) */}
+            <View style={styles.mapPlaceholder}>
+              <Text>📍 Map</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.infoRowNew}>
+          <View style={styles.infoItem}>
+            <Text style={styles.infoLabel}>💰 Price</Text>
+            <Text style={styles.infoValue}>{trip.Price} ₪</Text>
+          </View>
+
+          <View style={styles.infoItem}>
+            <Text style={styles.infoLabel}>💺 Seats</Text>
+            <Text style={styles.infoValue}>{trip.available_seats}</Text>
+          </View>
+        </View>
+
+        <View style={styles.actionsContainer}>
+          <View style={styles.mapActions}>
             <TouchableOpacity style={styles.editBtn} onPress={editTrip}>
               <Text style={styles.btnText}>Edit Trip</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.deleteBtn} onPress={deleteTrip}>
+            <TouchableOpacity
+              style={styles.deleteBtn}
+              onPress={() => {
+                console.log("DELETE CLICKED");
+                deleteTrip();
+              }}
+            >
               <Text style={styles.btnText}>Delete</Text>
             </TouchableOpacity>
           </View>
-        </View>
-
-        {/* RIGHT SIDE MAP 
-        <View style={styles.mapBox}>
-          <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude: 31.95, 
-              longitude: 35.23,
-              latitudeDelta: 0.5,
-              longitudeDelta: 0.5,
-            }}
-          >
-            <Marker
-              coordinate={{ latitude: 31.95, longitude: 35.23 }}
-              title="Trip Route"
-            />
-          </MapView>
-        </View>*/}
-      </View>
-
-      <View style={styles.infoRow}>
-        <View style={styles.infoCard}>
-          <Text style={styles.infoLabel}>Price per Seat</Text>
-          <Text style={styles.infoValue}>{trip.Price} ₪</Text>
-        </View>
-
-        <View style={styles.infoCard}>
-          <Text style={styles.infoLabel}>Seats Available</Text>
-          <Text style={styles.infoValue}>{trip.available_seats}</Text>
         </View>
       </View>
 
@@ -220,11 +291,6 @@ export default function TripDetails() {
 
         {accepted.map((b) => (
           <View key={b.id} style={styles.userCard}>
-           <Text style={{ color: "#888", fontSize: 12 }}>
-  Accepted at: {b.accepted_at
-    ? new Date(b.accepted_at).toLocaleString()
-    : "just now"}
-</Text>
             {b.user?.image ? (
               <Image
                 source={{ uri: b.user.image }}
@@ -238,10 +304,102 @@ export default function TripDetails() {
               </View>
             )}
 
-            <Text style={styles.userName}>{b.user?.full_name}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.userName}>{b.user?.full_name}</Text>
+
+              <Text style={styles.acceptTime}>
+                Accepted at:{" "}
+                {b.accepted_at
+                  ? new Date(b.accepted_at).toLocaleString()
+                  : "just now"}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              style={styles.removeBtn}
+              onPress={() => removeAccepted(b.id)}
+            >
+              <Text style={styles.removeText}>✖</Text>
+            </TouchableOpacity>
           </View>
         ))}
       </View>
+
+      {editVisible && (
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalCard}>
+      <Text style={styles.modalTitle}>Edit Trip</Text>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+
+        <Text style={styles.fieldLabel}>From City</Text>
+        <TextInput
+          style={styles.input}
+          value={editData.FromCity}
+          onChangeText={(t) =>
+            setEditData({ ...editData, FromCity: t })
+          }
+        />
+
+        <Text style={styles.fieldLabel}>To City</Text>
+        <TextInput
+          style={styles.input}
+          value={editData.ToCity}
+          onChangeText={(t) =>
+            setEditData({ ...editData, ToCity: t })
+          }
+        />
+
+        <Text style={styles.fieldLabel}>Date</Text>
+        <TextInput
+          style={styles.input}
+          value={editData.DateTrip}
+          onChangeText={(t) =>
+            setEditData({ ...editData, DateTrip: t })
+          }
+        />
+
+        <Text style={styles.fieldLabel}>Price</Text>
+        <TextInput
+          style={styles.input}
+          value={String(editData.Price)}
+          keyboardType="numeric"
+          onChangeText={(t) =>
+            setEditData({ ...editData, Price: Number(t) })
+          }
+        />
+
+        <Text style={styles.fieldLabel}>Seats</Text>
+        <TextInput
+          style={styles.input}
+          value={String(editData.available_seats)}
+          keyboardType="numeric"
+          onChangeText={(t) =>
+            setEditData({
+              ...editData,
+              available_seats: Number(t),
+            })
+          }
+        />
+
+        
+
+      </ScrollView>
+      <View style={styles.modalActions}>
+          <TouchableOpacity style={styles.saveBtn} onPress={updateTrip}>
+            <Text style={styles.btnText}>Save</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.cancelBtn}
+            onPress={() => setEditVisible(false)}
+          >
+            <Text style={styles.btnText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+    </View>
+  </View>
+)}
     </ScrollView>
   );
 }
@@ -268,27 +426,16 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
 
-  mapBox: {
-    width: 120,
-    height: 120,
-    borderRadius: 15,
-    overflow: "hidden",
-  },
-
-  map: {
-    width: "100%",
-    height: "100%",
-  },
-
   route: {
-    color: "#fff",
-    fontSize: 20,
+    color: "#222",
+    fontSize: 18,
     fontWeight: "bold",
   },
 
   date: {
-    color: "#fff",
+    color: "#666",
     marginTop: 5,
+    fontSize: 13,
   },
 
   tripActions: {
@@ -298,14 +445,14 @@ const styles = StyleSheet.create({
   },
 
   editBtn: {
-    backgroundColor: "#0c318186",
+    backgroundColor: "#e55b16",
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 10,
   },
 
   deleteBtn: {
-    backgroundColor: "#aa0a0a",
+    backgroundColor: "#c50707",
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 10,
@@ -316,6 +463,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 20,
   },
+ 
 
   infoCard: {
     backgroundColor: "#fff",
@@ -326,14 +474,66 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
 
+  tripCard: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 20,
+    marginBottom: 20,
+    elevation: 5,
+  },
+  tripTop: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  mapBox: {
+    width: 100,
+    height: 100,
+    borderRadius: 15,
+    overflow: "hidden",
+    marginLeft: 10,
+  },
+
+  map: {
+    width: "100%",
+    height: "100%",
+  },
+
+  mapPlaceholder: {
+    flex: 1,
+    backgroundColor: "#eee",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 15,
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: "#eee",
+    marginVertical: 15,
+  },
+
+  infoRowNew: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  infoItem: {
+    alignItems: "center",
+    flex: 1,
+  },
+
   infoLabel: {
+    fontSize: 13,
     color: "#888",
-    marginBottom: 5,
+    fontWeight: "500",
+    marginBottom: 4,
   },
 
   infoValue: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
+    color: "#222",
   },
 
   section: {
@@ -383,6 +583,33 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#E55C16",
   },
+  acceptTime: {
+    color: "#888",
+    fontSize: 12,
+    marginTop: 2,
+  },
+  removeBtn: {
+    backgroundColor: "#ffe5e5",
+    padding: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ff4d4d",
+  },
+
+  actionsContainer: {
+    alignItems: "flex-end", 
+    marginTop: 10,
+  },
+
+  mapActions: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  removeText: {
+    color: "#ff4d4d",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
 
   userName: {
     flex: 1,
@@ -408,5 +635,73 @@ const styles = StyleSheet.create({
   btnText: {
     color: "#fff",
     fontWeight: "bold",
+  },
+
+ 
+  modalOverlay: {
+  position: "absolute",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: "rgba(0,0,0,0.6)",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 999,
+},
+
+modalCard: {
+  width: "90%",
+  maxHeight: "80%",
+  backgroundColor: "#fff",
+  borderRadius: 20,
+  padding: 20,
+},
+modalTitle: {
+  fontSize: 18,
+  fontWeight: "bold",
+  marginBottom: 15,
+  textAlign: "center",
+  color: "#222",
+},
+
+fieldLabel: {
+  fontSize: 13,
+  fontWeight: "600",
+  color: "#555",
+  marginBottom: 5,
+  marginTop: 10,
+},
+
+input: {
+  borderWidth: 1,
+  borderColor: "#ddd",
+  borderRadius: 10,
+  padding: 10,
+  marginBottom: 5,
+},
+  
+
+  modalActions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  saveBtn: {
+    backgroundColor: "#4CAF50",
+    padding: 10,
+    borderRadius: 10,
+    flex: 1,
+    marginRight: 5,
+    alignItems: "center",
+  },
+
+  cancelBtn: {
+    backgroundColor: "#F44336",
+    padding: 10,
+    borderRadius: 10,
+    flex: 1,
+    marginLeft: 5,
+    alignItems: "center",
   },
 });

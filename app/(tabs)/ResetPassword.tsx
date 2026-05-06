@@ -49,8 +49,8 @@ export default function ResetPassword() {
         />
       </View>
 
-=      <TouchableOpacity style={styles.button} onPress={reset}>
-        <Text style={styles.buttonText}>Update Password</Text>
+    <TouchableOpacity style={styles.button} onPress={reset}>
+        <Text style={styles.buttonText}>Reset Password</Text>
       </TouchableOpacity>
     </View>
   );
