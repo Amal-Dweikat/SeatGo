@@ -10,6 +10,7 @@ import { Picker } from "@react-native-picker/picker";
 import {useState} from "react";
 import {scheduleTrip} from "@/api/TripDetaild";
 import {router} from "expo-router";
+import Back from "@/components/Back";
 
 export default function FormScheduleTrip(){
     const { control, handleSubmit } = useForm();
@@ -65,7 +66,9 @@ export default function FormScheduleTrip(){
     <SafeAreaView style={styles.container}>
 
         <AuthBackground/>
-
+        <View style={{marginTop:10}}>
+        <Back/>
+        </View>
     <View style={styles.content}>
     <View style={styles.cardInfoDr}>
        <InputCityRow
