@@ -8,6 +8,7 @@ import TripCard from "@/components/ContainerTripSummary";
 import {useEffect, useState} from "react";
 import {returnTripInfo} from "@/api/TripDetaild";
 import axios, { AxiosError } from "axios";
+import Back from "@/components/Back";
 
 export default function TripDetails() {
     const [loading, setLoading] = useState(true);
@@ -87,11 +88,7 @@ export default function TripDetails() {
 
 
                     </Svg>
-                    <View style={styles.Back}>
-                        <Pressable onPress={()=> handlePress()}>
-                            <Ionicons name="chevron-back" size={30} color="#E55C16"/>
-                        </Pressable>
-                    </View>
+                    <Back></Back>
                     <Text style={styles.title}> Trip Details  </Text>
                 </View>
         </View>

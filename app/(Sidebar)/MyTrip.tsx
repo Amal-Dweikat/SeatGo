@@ -4,7 +4,7 @@ import CalendarStrip from 'react-native-calendar-strip';
 import moment from "moment";
 import ItemCard from "@/components/ItemCard";
 import {GetTrip} from "@/api/TripDetaild";
-import * as SecureStore from "expo-secure-store";
+import {useAuth} from "@/context/AuthContext";
 
 export default function Home() {
 
@@ -14,21 +14,19 @@ export default function Home() {
     const [trips, setTrips] = useState([]);
     //fetch date today  in hour 00:00
     const today = moment().startOf("day");
-    const [role, setRole] = useState<string | null>(null);
 
+    const{user}=useAuth();
     useEffect(() => {
-        const getRole = async () => {
-            const savedRole = await SecureStore.getItemAsync("role");
-            setRole(savedRole);
-        };
-
-        getRole();
         GetTrip()
             .then((res) => {
                 setTrips(res.data.Trip);
             })
             .catch(console.log);
+    }, []);
+    useEffect(() => {
+        if (!trips.length) return;
 
+        const expanded = expandTrips(trips);
 
         let baseList =
             tab === "Upcoming"
@@ -43,7 +41,7 @@ export default function Home() {
 
         setDisplayedTrips(baseList);
 
-    }, [trips, tab, selectedDate,role]);
+    }, [trips, tab, selectedDate]);
     //This function to handle press day in calendar
     const handleDateSelected = (date:any) => {
         if (selectedDate && date.isSame(selectedDate, "day")) {
@@ -62,7 +60,7 @@ export default function Home() {
     //This function if i have repeat trip it's split to individual card
     const expandTrips = (trips: any[]) => {
         let result: any[] = [];
-        if (role === "driver"){
+        if (user?.role=== "driver"){
         trips.forEach((trip) => {
         //if trip dont repeat
             if (!trip.TripRepeat) {
