@@ -1,10 +1,17 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
+
+let logoutHandler: (() => void) | null = null;
+
+export const setLogoutHandler = (fn: () => void) => {
+    logoutHandler = fn;
+};
+
 const baseApi = axios.create({
 
 
-    baseURL: "http://192.168.1.17:8000/api",
+    baseURL: "http://192.168.1.27:8000/api",
     // baseURL: "http://192.168.1.79:8000/api",
 
     headers: {
@@ -13,6 +20,7 @@ const baseApi = axios.create({
 
     },
 });
+
 
 baseApi.interceptors.request.use(
     async (config) => {
@@ -38,8 +46,12 @@ baseApi.interceptors.response.use(
 
         if (status === 401) {
             console.log("Unauthorized - Token expired");
+
             await SecureStore.deleteItemAsync("token");
 
+            if (logoutHandler) {
+                logoutHandler();
+            }
         }
 
 

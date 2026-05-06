@@ -14,13 +14,14 @@ import { loginApi } from "@/api/authApi";
 import * as SecureStore from "expo-secure-store";
 import FormInput from "@/components/FormInput";
 import {router} from "expo-router";
+import {useAuth} from "@/context/AuthContext";
 
 
 
 export default function LoginScreen() {
     const { control, handleSubmit } = useForm();
 
-
+    const { setUser } = useAuth();
     const loginMutation = useMutation({
         mutationFn: loginApi,
 
@@ -32,7 +33,7 @@ export default function LoginScreen() {
 
             await SecureStore.setItemAsync("token", token);
 
-
+            setUser(user);
             if (user.role === 'driver') {
                 router.replace("/DriverHomePage");
             } else if (user.role === 'passenger') {

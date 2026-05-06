@@ -1,14 +1,26 @@
-import { StyleSheet, Text, View ,Image} from "react-native";
+import {StyleSheet, Text, View, Image, TouchableOpacity} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import Rating from "@/components/Rating";
 
-export default function CardInfoDriver({name,phone,rating,typeCar,colorCar,plateNum}:any){
+export default function CardInfoDriver({name,phone,rating,typeCar,colorCar,plateNum, showCarInfo = true ,  profile_picture,showEditIcon = false,  onEditPress}:any){
 
 return(
   <View style={styles.cardInfoDr}>
     <View style={styles.TopInfo} >
      <Image
-      source={ require("../assets/images/Driver3.jpg")} style={styles.driverImage} />
+         source={
+             profile_picture
+                 ? { uri: profile_picture }
+                 : require("../assets/images/Driver3.jpg")
+         } style={styles.driverImage} />
+        {showEditIcon && (
+            <TouchableOpacity
+                onPress={onEditPress}
+                style={styles.editIcon}
+            >
+                <Ionicons name="camera" size={14} color="#fff" />
+            </TouchableOpacity>
+        )}
        <View style={styles.DriverInfo} >
          <Text style={styles.driverName} >{name}</Text>
          <Text ><Ionicons name="person" size={16} color="#E55C16" />{":"}{name}</Text>
@@ -17,6 +29,8 @@ return(
        </View>
     </View  >
 
+      {showCarInfo && (
+          <>
     <View style={{ borderColor: "rgba(0,0,0,0.2)", borderBottomWidth: 1 ,marginVertical: 10 }} >
     </View>
 
@@ -37,7 +51,11 @@ return(
                <Text>{plateNum}</Text>
          </View>
     </View>
-  </View>);
+          </>
+      )}
+  </View>
+
+      );
 }
 
 const styles= StyleSheet.create({
@@ -74,6 +92,17 @@ const styles= StyleSheet.create({
         fontSize: 20,
         fontWeight: "bold",
         //alignSelf:"center",
+    },
+    editIcon: {
+        position: "absolute",
+        bottom: 0,
+        right: 0,
+        backgroundColor: "#E55C16",
+        width: 26,
+        height: 26,
+        borderRadius: 13,
+        justifyContent: "center",
+        alignItems: "center",
     },
     BottomInfo:{
         flexDirection:"row",

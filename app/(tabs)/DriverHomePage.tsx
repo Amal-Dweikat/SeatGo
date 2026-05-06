@@ -5,6 +5,7 @@ import {Ionicons} from "@expo/vector-icons";
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {endTripApi, getCurrentTrip, getDriverStats, startTripApi} from "@/api/driverApi";
 import {useState} from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function DriverHomePage() {
     const { data, isLoading } = useQuery({
@@ -12,26 +13,28 @@ export default function DriverHomePage() {
         queryFn: getDriverStats,
     });
 
-    const [isStarted, setIsStarted] = useState(false);
-    const [showRating, setShowRating] = useState(false);
 
-    // const { data: trip } = useQuery({
-    //     queryKey: ["current-trip"],
-    //     queryFn: getCurrentTrip,
-    // });
-    const trip = {
-        id: 1,
-        from: "Nablus",
-        to: "Ramallah",
-        time: "10:30 AM",
-        passengers_count: 3,
-    };
+    const [showRating, setShowRating] = useState(false);
+    const queryClient = useQueryClient();
+
+    const { data: trip, isLoading: tripLoading } = useQuery({
+        queryKey: ["current-trip"],
+        queryFn: getCurrentTrip,
+    });
+    const isStarted = trip?.status === "active";
 
 
     const startMutation = useMutation({
         mutationFn: startTripApi,
         onSuccess: () => {
-            setIsStarted(true);
+
+            queryClient.invalidateQueries({
+                queryKey: ["current-trip"],
+            });
+
+            queryClient.invalidateQueries({
+                queryKey: ["driver-stats"],
+            });
         },
     });
 
@@ -39,12 +42,19 @@ export default function DriverHomePage() {
         mutationFn: endTripApi,
         onSuccess: () => {
             setShowRating(true);
+            queryClient.invalidateQueries({
+                queryKey: ["current-trip"],
+            });
+
+            queryClient.invalidateQueries({
+                queryKey: ["driver-stats"],
+            });;
         },
     });
 
     const [id , setid]=useState("")
     const handlepress = () => {
-        router.push(`/${id}`);
+        router.push("/profile");
     };
 
     return (
@@ -55,7 +65,7 @@ export default function DriverHomePage() {
         title={"Welcome back  \nReady to earn with your rides?"}
         subtitle={"Offer available seats in your car\n and make extra income"}
         buttonText="Schedule a Trip"
-        onPress={() => router.push("/")}
+        onPress={() => router.push("/profile")}
 
     />
 
@@ -90,7 +100,7 @@ export default function DriverHomePage() {
             </View>
 
 
-            {trip && (
+            {trip && trip.status !== "completed" &&(
                 <View style={styles.tripCard}>
                     <View style={styles.routeRow}>
                     <Ionicons name="car-outline" size={25} color="#E55C16" />
@@ -119,20 +129,14 @@ export default function DriverHomePage() {
                             styles.tripButton,
                             isStarted ? styles.endButton : styles.startButton,
                         ]}
-                        // onPress={() => {
-                        //     if (!isStarted) {
-                        //         startMutation.mutate(trip.id);
-                        //     } else {
-                        //         endMutation.mutate(trip.id);
-                        //     }
-                        // }}
                         onPress={() => {
                             if (!isStarted) {
-                                setIsStarted(true);
+                                startMutation.mutate(trip.id);
                             } else {
-                                setShowRating(true);
+                                endMutation.mutate(trip.id);
                             }
                         }}
+
                     >
                         <Text style={styles.buttonText}>
                             {isStarted ? "End Trip" : "Start Trip"}
@@ -156,9 +160,12 @@ export default function DriverHomePage() {
                     </View>
                 </View>
             </Modal>
+
+
+
             <View style={styles.tripCar}>
 
-                {/* Top Row */}
+
                 <View style={styles.topRo}>
                     <View style={styles.routeBo}>
                         <Ionicons name="location" size={18} color="#E55C16" />
@@ -170,10 +177,10 @@ export default function DriverHomePage() {
                     </View>
                 </View>
 
-                {/* Time */}
+
                 <Text style={styles.timeTex}>Departure: 4:00 PM</Text>
 
-                {/* Driver Info */}
+
                 <View style={styles.driverRo}>
                     <View style={styles.avata} />
 
@@ -196,30 +203,7 @@ export default function DriverHomePage() {
                 </TouchableOpacity>
 
             </View>
-            <View style={styles.v}>
-                <TextInput
-                    value={id}
-                    onChangeText={(text) => setid(text)}
-                    style={{
-                        backgroundColor: "#fff",
-                        padding: 10,
-                        borderRadius: 10,
-                    }}
-                />
 
-                <Pressable
-                    onPress={handlepress}
-                    style={{
-                        marginTop: 10,
-                        backgroundColor: "#E55C16",
-                        padding: 12,
-                        borderRadius: 10,
-                        alignItems: "center",
-                    }}
-                >
-                    <Text style={{ color: "#fff" }}>Go</Text>
-                </Pressable>
-            </View>
         </SafeAreaView>
     );
 

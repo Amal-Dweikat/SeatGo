@@ -27,3 +27,11 @@ export const getMeApi = () => {
 export const logoutApi = () => {
     return baseApi.post("/logout");
 };
+
+export const updateProfileApi = (data: any) => {
+    return baseApi.put("/user/update", data);
+};
+
+export const updatePasswordApi = (data: any) => {
+    return baseApi.put("/user/update-password", data);
+};

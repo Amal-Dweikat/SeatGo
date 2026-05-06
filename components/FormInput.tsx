@@ -23,7 +23,7 @@ export default function FormInput({
         <Controller
             control={control}
             name={name}
-            rules={{ required: `${placeholder} is required` }}
+            // rules={{ required: `${placeholder} is required` }}
             render={({ field: { onChange, value }, fieldState: { error } }) => (
                 <View style={{ marginBottom: 15 }}>
 
@@ -41,7 +41,7 @@ export default function FormInput({
                         <TextInput
                             style={styles.input}
                             placeholder={placeholder}
-                            value={value}
+                            value={value ?? ""}
                             onChangeText={onChange}
                             secureTextEntry={secureTextEntry}
                             keyboardType={keyboardType}

@@ -13,15 +13,16 @@ import { createDriverApi } from "@/api/driverApi";
 import * as SecureStore from "expo-secure-store";
 import { Alert } from "react-native";
 import {router} from "expo-router";
+import {useAuth} from "@/context/AuthContext";
 
 export default function DriverForm() {
     const { control, handleSubmit } = useForm();
-
+    const { setUser } = useAuth();
     const driverMutation = useMutation({
         mutationFn: createDriverApi,
 
         onSuccess: async (res) => {
-            Alert.alert("Success", "Driver request submitted!");
+            setUser(res.data.user);
             router.push("/DriverHomePage")
         },
 
