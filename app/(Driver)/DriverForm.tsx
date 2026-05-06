@@ -23,7 +23,7 @@ export default function DriverForm() {
 
         onSuccess: async (res) => {
             setUser(res.data.user);
-            router.push("/DriverHomePage")
+            router.push("/home")
         },
 
         onError: (err: any) => {
