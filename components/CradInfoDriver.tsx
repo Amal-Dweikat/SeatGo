@@ -2,6 +2,15 @@ import {StyleSheet, Text, View, Image, TouchableOpacity} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import Rating from "@/components/Rating";
 
+export default function CardInfoDriver({name,phone,rating,typeCar,colorCar,plateNum,image}:any){
+    const driverImages:any = {
+        1: require("../assets/images/Driver1.jpg"),
+        2: require("../assets/images/Driver2.jpg"),
+        3: require("../assets/images/Driver3.jpg"),
+        4: require("../assets/images/Driver4.jpg"),
+        5: require("../assets/images/Driver5.jpg"),
+        6: require("../assets/images/Driver6.jpg"),
+    };
 export default function CardInfoDriver({name,phone,rating,typeCar,colorCar,plateNum, showCarInfo = true ,  profile_picture,showEditIcon = false,  onEditPress}:any){
 
 return(
@@ -21,6 +30,10 @@ return(
                 <Ionicons name="camera" size={14} color="#fff" />
             </TouchableOpacity>
         )}
+        <Image
+            source={driverImages[image]}
+            style={styles.driverImage}
+        />
        <View style={styles.DriverInfo} >
          <Text style={styles.driverName} >{name}</Text>
          <Text ><Ionicons name="person" size={16} color="#E55C16" />{":"}{name}</Text>

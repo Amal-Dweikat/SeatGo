@@ -17,6 +17,7 @@ type Trip = {
   FromCity: string;
   ToCity: string;
   DepartureTime: string;
+  DateTrip:string;
   transport: string;
   Price: number;
   BookedSeats: number;

@@ -4,7 +4,7 @@ import {useState} from "react";
 import CardInfoTrip from "./CardInfoTrip";
 import {BookingApi,BookingData} from "@/api/TripDetaild";
 
-export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bookedSeats,totalSeats, departureTime, arrivalTime, date, note,id ,onChangeSeat}:any)  {
+export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bookedSeats,totalSeats, departureTime, arrivalTime, date, note,id ,onChangeSeat,TripRepeat}:any)  {
 
 
     const [showBooking,setShowBooking]=useState(false);
@@ -12,7 +12,7 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
     const [repeat, setRepeat] = useState(false);
     const [endDate, setEndDate] = useState("");
     const isFull = bookedSeats >= totalSeats;
-    const isRepeatFromDriver=true;
+    const isRepeatFromDriver=TripRepeat;
     const [selectedDays, setSelectedDays] = useState<string[]>([]);
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 

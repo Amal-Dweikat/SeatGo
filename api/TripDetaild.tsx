@@ -13,3 +13,9 @@ export const BookingApi = (data : BookingData) => {
 export const returnTripInfo = (id: number) => {
     return baseApi.get(`/trip/${id}`);
 };
+export const scheduleTrip = (data: any) => {
+    return baseApi.post("/schedule-trip", data);
+};
+export const GetTrip = () => {
+    return baseApi.get("/getTripUser");
+};

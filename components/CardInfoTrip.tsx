@@ -23,7 +23,7 @@ export default function CardInfoTrip( props:any ){
                 <Ionicons name="location-outline" size={30} color="#E55C16" />
                 <View style={{flexDirection :"column",}}>
                     <Text style={styles.cityText}>{props.toCity}</Text>
-                    <Text style={styles.areaText}>{props.fromArea}</Text>
+                    <Text style={styles.areaText}>{props.toArea}</Text>
                 </View>
             </View>
         </View>

@@ -1,7 +1,8 @@
 import axios from "axios";
+import baseApi from "@/api/baseApi";
 
 const api = axios.create({
-  baseURL: "http://192.168.1.17:8000/api",
+  baseURL: "http://192.168.1.79:8000/api",
 });
 
 export const searchTrips = async (params: {
@@ -9,7 +10,7 @@ export const searchTrips = async (params: {
   ToCity?: string;
   DepartureTime?: string;
 }) => {
-  const res = await api.get("/search", {
+  const res = await baseApi.get("/search", {
     params: {
       ...params,
     },

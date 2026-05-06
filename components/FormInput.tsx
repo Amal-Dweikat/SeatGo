@@ -72,8 +72,9 @@ const styles = StyleSheet.create({
     },
 
     input: {
-        flex: 1,
+       flex: 1,
         paddingVertical: 12,
+
     },
 
     error: {
