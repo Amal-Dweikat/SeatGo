@@ -34,8 +34,10 @@ export default function LoginScreen() {
             await SecureStore.setItemAsync("token", token);
 
             setUser(user);
+            await SecureStore.setItemAsync("role", user.role);
 
-            router.replace("/home");
+
+                router.replace("/home");
         },
 
         onError: (err: any) => {

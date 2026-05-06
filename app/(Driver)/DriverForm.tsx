@@ -22,6 +22,9 @@ export default function DriverForm() {
         mutationFn: createDriverApi,
 
         onSuccess: async (res) => {
+            console.log("API RESPONSE:", res.data);
+            console.log("USER ROLE:", res.data.user?.role);
+
             setUser(res.data.user);
             router.push("/home")
         },

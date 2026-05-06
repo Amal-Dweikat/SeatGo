@@ -13,15 +13,24 @@ export default function CardInfoDriver({name,phone,rating,typeCar,colorCar,plate
         5: require("../assets/images/Driver5.jpg"),
         6: require("../assets/images/Driver6.jpg"),
     };
+    const getImageSource = () => {
+        if (profile_picture) {
+            return { uri: profile_picture };
+        }
+
+        if (image && driverImages[image]) {
+            return driverImages[image];
+        }
+
+        return require("../assets/images/Driver3.jpg"); // default
+    };
 return(
   <View style={styles.cardInfoDr}>
     <View style={styles.TopInfo} >
-     <Image
-         source={
-             profile_picture
-                 ? { uri: profile_picture }
-                 : require("../assets/images/Driver3.jpg")
-         } style={styles.driverImage} />
+        <Image
+            source={getImageSource()}
+            style={styles.driverImage}
+        />
         {showEditIcon && (
             <TouchableOpacity
                 onPress={onEditPress}
@@ -30,10 +39,7 @@ return(
                 <Ionicons name="camera" size={14} color="#fff" />
             </TouchableOpacity>
         )}
-        <Image
-            source={driverImages[image]}
-            style={styles.driverImage}
-        />
+
        <View style={styles.DriverInfo} >
          <Text style={styles.driverName} >{name}</Text>
          <Text ><Ionicons name="person" size={16} color="#E55C16" />{":"}{name}</Text>
