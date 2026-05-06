@@ -61,12 +61,12 @@ export default function FormScheduleTrip(){
     };
 
     return(
-    <SafeAreaView style={styles.container}>
+     <SafeAreaView style={styles.container}>
 
         <AuthBackground/>
 
-    <View style={styles.content}>
-    <View style={styles.cardInfoDr}>
+     <View style={styles.content}>
+          <View style={styles.cardInfoDr}>
        <InputCityRow
        label={"FROM"}
        nameCity={"FromCity"}
@@ -75,19 +75,22 @@ export default function FormScheduleTrip(){
        showDot={true}
        control={control}
        />
-        <InputCityRow
+         <InputCityRow
             label={"TO"}
-            nameCity={"ToCity"}
-            nameArea={"SpecificToArea"}
-            iconName={"location-outline"}
-            showDot={false}
-            control={control}
-        />
+             nameCity={"ToCity"}
+             nameArea={"SpecificToArea"}
+             iconName={"location-outline"}
+             showDot={false}
+             control={control}
+         />
 
-    </View>
-    <View style={styles.cardComplete}>
-        <View style={styles.row }>
-            <InputGridCell
+
+
+       </View>
+       <View style={styles.cardComplete}>
+         <View style={styles.row }>
+             <InputGridCell
+
                 leftCell={true}
                 rightCell={false}
                 name={"price"}
@@ -106,10 +109,10 @@ export default function FormScheduleTrip(){
                 nameIcon={"calendar-outline"}/>
         </View>
 
-        <View style={styles.horizontalLine} />
+      <View style={styles.horizontalLine} />
 
-        <View style={styles.row}>
-            <InputGridCell
+         <View style={styles.row}>
+             <InputGridCell
                 leftCell={true}
                 rightCell={false}
                 name={"time"}
@@ -124,10 +127,12 @@ export default function FormScheduleTrip(){
                 control={control}
                 placeholder={"Number Seats"}
                 text={"Available Seats"}
-                nameIcon={"people-outline"}/>        </View>
-     </View>
-<View style={styles.cardComplete}>
-    <ScrollView style={[styles.container,{padding:5,backgroundColor: "#F5F5F5",marginBottom:5}]}>
+                nameIcon={"people-outline"}/>
+               </View>
+               </View>
+
+                <View style={styles.cardComplete}>
+                <ScrollView style={[styles.container,{padding:5,backgroundColor: "#F5F5F5",marginBottom:5}]}>
         <Text style={styles.text}>Transport</Text>
         <FormInput control={control} name={"transport"} placeholder={"Select transport such as 'Bus,Car'"}/>
         <View style={[styles.horizontalLine,{marginBottom:5,}]} />
@@ -143,6 +148,8 @@ export default function FormScheduleTrip(){
                 <Picker.Item label="Select answer" value="" />
                 <Picker.Item label="True" value={true} />
                 <Picker.Item label="False" value={false} />
+
+
             </Picker>
 
         </View>
@@ -183,7 +190,7 @@ export default function FormScheduleTrip(){
 
                     <TextInput
                         placeholder="End date for repeat: YYYY-MM-DD"
-                        value={endDate}
+                        value={endDate || ""}
                         onChangeText={formatDate}
                         style={{ flex: 1 }}
                     />
@@ -201,6 +208,7 @@ export default function FormScheduleTrip(){
 
 
     </SafeAreaView>
+
 );
 
 }
