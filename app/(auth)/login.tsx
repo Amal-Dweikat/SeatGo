@@ -37,14 +37,7 @@ export default function LoginScreen() {
             await SecureStore.setItemAsync("role", user.role);
 
 
-            if (user.role === 'driver') {
                 router.replace("/home");
-            } else if (user.role === 'passenger') {
-                router.replace("/home");
-            } else {
-
-                router.replace("/home");
-            }
         },
 
         onError: (err: any) => {

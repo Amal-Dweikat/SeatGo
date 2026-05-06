@@ -69,12 +69,18 @@ export default function SplashScreen() {
         if (loading) return;
 
 
+        // if (!user) {
+        //     router.replace("/login");
+        // } else if (user.role === "driver") {
+        //     router.replace("/DriverHomePage");
+        // } else {
+        //     router.replace("/UserHomeScreen");
+        // }
+
         if (!user) {
             router.replace("/login");
-        } else if (user.role === "driver") {
-            router.replace("/DriverHomePage");
         } else {
-            router.replace("/UserHomeScreen");
+            router.replace("/home");
         }
 
     }, [showSplash, user, loading]);
