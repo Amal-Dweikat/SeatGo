@@ -2,7 +2,9 @@ import {StyleSheet, Text, View, Image, TouchableOpacity} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import Rating from "@/components/Rating";
 
-export default function CardInfoDriver({name,phone,rating,typeCar,colorCar,plateNum,image}:any){
+
+
+export default function CardInfoDriver({name,phone,rating,typeCar,colorCar,plateNum, showCarInfo = true ,  profile_picture,showEditIcon = false,  onEditPress,image}:any){
     const driverImages:any = {
         1: require("../assets/images/Driver1.jpg"),
         2: require("../assets/images/Driver2.jpg"),
@@ -11,8 +13,6 @@ export default function CardInfoDriver({name,phone,rating,typeCar,colorCar,plate
         5: require("../assets/images/Driver5.jpg"),
         6: require("../assets/images/Driver6.jpg"),
     };
-export default function CardInfoDriver({name,phone,rating,typeCar,colorCar,plateNum, showCarInfo = true ,  profile_picture,showEditIcon = false,  onEditPress}:any){
-
 return(
   <View style={styles.cardInfoDr}>
     <View style={styles.TopInfo} >
@@ -123,5 +123,5 @@ const styles= StyleSheet.create({
 
     },
     lineBetweenCarInfo:{width: 1.5, height: 40,backgroundColor: 'rgba(0,0,0,0.1)'},
-    layoutCarInfo:{ flex: 1, alignItems: 'center', paddingHorizontal: 5 }
+    layoutCarInfo:{ flex: 1, alignItems: 'center', paddingHorizontal: 5 },
 });
