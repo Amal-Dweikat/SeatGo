@@ -33,12 +33,12 @@ export default function ResetPassword() {
 
   return (
     <View style={styles.container}>
-=      <Text style={styles.title}>Reset Password</Text>
+     <Text style={styles.title}>Reset Password</Text>
       <Text style={styles.subtitle}>
         Enter your new password below
       </Text>
 
-=      <View style={styles.inputContainer}>
+      <View style={styles.inputContainer}>
         <TextInput
           placeholder="New Password"
           placeholderTextColor="#aaa"
