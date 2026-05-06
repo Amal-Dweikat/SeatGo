@@ -163,46 +163,6 @@ export default function DriverHomePage() {
 
 
 
-            <View style={styles.tripCar}>
-
-
-                <View style={styles.topRo}>
-                    <View style={styles.routeBo}>
-                        <Ionicons name="location" size={18} color="#E55C16" />
-                        <Text style={styles.routeTex}>Nablus → Ramallah</Text>
-                    </View>
-
-                    <View style={styles.priceBo}>
-                        <Text style={styles.priceTex}>$15</Text>
-                    </View>
-                </View>
-
-
-                <Text style={styles.timeTex}>Departure: 4:00 PM</Text>
-
-
-                <View style={styles.driverRo}>
-                    <View style={styles.avata} />
-
-                    <View>
-                        <Text style={styles.driverName}>Ahmad</Text>
-                        <Text style={styles.rating}>⭐ 4.8 (100)</Text>
-                    </View>
-                </View>
-
-                {/*<Pressable*/}
-                {/*    onPress={handlepress}*/}
-                {/*    style={styles.butto}*/}
-                {/*>*/}
-                {/*    <Text style={styles.buttonTex}>View Details</Text>*/}
-                {/*</Pressable>*/}
-
-                <TouchableOpacity style={styles.butto}
-                                  onPress={handlepress}>
-                    <Text style={styles.buttonTex}>View Details</Text>
-                </TouchableOpacity>
-
-            </View>
 
         </SafeAreaView>
     );
@@ -354,91 +314,11 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 10,
     },
-    v:{
 
-        marginTop:20,
 
-    },
-    tripCar: {
-        backgroundColor: "#fff",
-        padding: 15,
-        borderRadius: 15,
-        marginHorizontal: 10,
-        marginTop: 10,
-        shadowColor: "#000",
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-        elevation: 5,
-    },
 
-    topRo: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-    },
 
-    routeBo: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 5,
-    },
 
-    routeTex: {
-        fontSize: 14,
-        fontWeight: "600",
-    },
 
-    priceBo: {
-        backgroundColor: "#E55C16",
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 8,
-    },
 
-    priceTex: {
-        color: "#fff",
-        fontWeight: "bold",
-    },
-
-    timeTex: {
-        marginTop: 8,
-        fontSize: 12,
-        color: "#777",
-    },
-
-    driverRo: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginTop: 10,
-        gap: 10,
-    },
-
-    avata: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: "#ddd",
-    },
-
-    driverName: {
-        fontWeight: "bold",
-    },
-
-    rating: {
-        fontSize: 12,
-        color: "#777",
-    },
-
-    butto: {
-        marginTop: 15,
-        backgroundColor: "#E55C16",
-        padding: 10,
-        borderRadius: 10,
-        alignItems: "center",
-    },
-
-    buttonTex: {
-        color: "#fff",
-        fontWeight: "bold",
-    },
 });
