@@ -1,35 +1,51 @@
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from "react-native";
-import { useState } from "react";
 import { forgotPasswordApi } from "@/api/authApi";
 import { router } from "expo-router";
+import { useState } from "react";
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
 
   const sendCode = async () => {
-  try {
-    console.log("Sending email:", email);
+    try {
+      console.log("Sending email:", email);
 
-    const res = await forgotPasswordApi({ email });
+      const res = await forgotPasswordApi({ email });
 
-    console.log("SUCCESS RESPONSE:", res.data);
+      console.log("FULL RESPONSE:", JSON.stringify(res.data));
+      console.log("SUCCESS RESPONSE:", res.data);
 
-    Alert.alert("Success", "Code sent");
+      const sentCode = res.data.code;
 
-    router.push({
-      pathname: "/VerifyCode",
-      params: { email },
-    });
+      console.log("SENT CODE:", sentCode);
 
-  } catch (err: any) {
-    console.log("FULL ERROR:", err);
-    console.log("RESPONSE ERROR:", err?.response?.data);
-    console.log("MESSAGE:", err.message);
+      Alert.alert("Success", "Code sent");
 
-    Alert.alert("Error", "Check console");
-  }
-};
+      router.push({
+        pathname: "/VerifyCode",
+        params: {
+          email,
+          sentCode,
+        },
+      });
+    } catch (err: any) {
+      console.log("FULL ERROR:", err);
+      console.log("STATUS:", err?.response?.status);
+      console.log("DATA:", err?.response?.data);
 
+      Alert.alert(
+        "Error❌",
+        err?.response?.data?.message || "Something went wrong",
+      );
+    }
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Forgot Password</Text>

@@ -1,67 +1,65 @@
 import {
-  View,
+  Alert,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  Alert,
-  StyleSheet,
+  View,
 } from "react-native";
-import { useState } from "react";
-import { verifyCodeApi, forgotPasswordApi } from "@/api/authApi";
+
+import { forgotPasswordApi, verifyCodeApi } from "@/api/authApi";
 import { router, useLocalSearchParams } from "expo-router";
+import { useState } from "react";
 
 export default function VerifyCode() {
   const { email } = useLocalSearchParams();
   const [code, setCode] = useState("");
 
   const verify = async () => {
-  try {
-    console.log("VERIFY CLICKED");
+    try {
+      const res = await verifyCodeApi({
+        email: email as string,
+        code: code.trim(),
+      });
 
-    const res = await verifyCodeApi({
-      email: email as string,
-      code,
-    });
+      console.log("VERIFY SUCCESS:", res.data);
 
-    console.log("VERIFY SUCCESS:", res.data);
+      Alert.alert("Success", "Code verified successfully");
 
-    Alert.alert("Success", "Code verified successfully", [
-      {
-        text: "OK",
-        onPress: () => {
-          router.push({
-            pathname: "/ResetPassword",
-            params: { email, code },
-          });
+      router.push({
+        pathname: "/ResetPassword",
+        params: {
+          email: email as string,
+          code: code.trim(),
         },
-      },
-    ]);
+      });
+    } catch (err: any) {
+      console.log("VERIFY ERROR:", err?.response?.data);
 
-  } catch (err: any) {
-    console.log("VERIFY ERROR:", err?.response?.data);
-
-    Alert.alert(
-      "Error",
-      err?.response?.data?.message || "Invalid code"
-    );
-  }
-};
+      Alert.alert("Error", err?.response?.data?.message || "Invalid code");
+    }
+  };
 
   const resendCode = async () => {
-  try {
-    await forgotPasswordApi({
-      email: email as string,
-    });
+    try {
+      const res = await forgotPasswordApi({
+        email: email as string,
+      });
 
-    Alert.alert("Success", "A new code has been sent to your email 📩");
-  } catch (err: any) {
-    Alert.alert("Error", "Failed to resend code");
-  }
-};
+      console.log("NEW CODE:", res.data);
+
+      Alert.alert("Success", "A new code has been sent 📩");
+    } catch (err: any) {
+      console.log(err?.response?.data);
+
+      Alert.alert("Error", "Failed to resend code");
+    }
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Verify Code</Text>
+
       <Text style={styles.subtitle}>
         Enter the verification code sent to your email
       </Text>
