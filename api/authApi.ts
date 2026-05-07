@@ -35,3 +35,8 @@ export const updateProfileApi = (data: any) => {
 export const updatePasswordApi = (data: any) => {
     return baseApi.put("/user/update-password", data);
 };
+
+export const getFinishedTrip = async () => {
+    const res = await baseApi.get("/finished-trip");
+    return res.data;
+};

@@ -5,6 +5,8 @@ import {
     ImageBackground,
     TouchableOpacity,
 } from "react-native";
+import {Ionicons} from "@expo/vector-icons";
+import {router} from "expo-router";
 
 type Props = {
     image: any;
@@ -24,6 +26,11 @@ export default function Hero({
     return (
         <ImageBackground source={image} style={styles.container} imageStyle={styles.image}>
 
+            <TouchableOpacity
+                style={styles.notificationIcon}
+            >
+                <Ionicons name="notifications-outline" size={24} color="#FFD6A5" />
+            </TouchableOpacity>
 
             <View style={styles.overlay} />
 
@@ -86,5 +93,13 @@ const styles = StyleSheet.create({
     buttonText: {
         color: "white",
         fontWeight: "bold",
+    },
+    notificationIcon: {
+        position: "absolute",
+        top: 45,
+        right: 15,
+        zIndex: 10,
+        padding: 8,
+        borderRadius: 20,
     },
 });

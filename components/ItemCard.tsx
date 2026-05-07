@@ -19,6 +19,7 @@ type Item = {
 type Props = {
   item: Item;
   color?:string;
+  onPress?: () => void;
 };
 const placeImages = [
   "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
@@ -35,7 +36,7 @@ const placeImages = [
 const getImage = (id: number) => {
   return placeImages[id % placeImages.length];
 };
-export default function ItemCard({ item , color = "#fff"}: Props) {
+export default function ItemCard({ item , color = "#fff" , onPress,}: Props) {
   return (
     <View style={[styles.card,{backgroundColor:color}]}>
       <View style={styles.header}>
@@ -63,12 +64,17 @@ export default function ItemCard({ item , color = "#fff"}: Props) {
       <View style={[styles.bottomcard]}>
         <TouchableOpacity
   style={styles.button}
-  onPress={() =>
-    router.push({
-      pathname: "/(Trip)/[id]",
-      params: { id: item.id },
-    })
-  }
+  onPress={() => {
+    if (onPress) {
+      onPress();
+    } else {
+      router.push({
+        pathname: "/(Trip)/[id]",
+        params: { id: item.id },
+      });
+    }
+  }}
+
 >
   <Text style={styles.buttonText}>View Details</Text>
 </TouchableOpacity>

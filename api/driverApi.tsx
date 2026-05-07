@@ -27,3 +27,8 @@ export const startTripApi = async (tripId: number) => {
 export const endTripApi = async (tripId: number) => {
     return baseApi.post(`/driver/trip/${tripId}/end`);
 };
+
+export const getUpcomingTrips = async () => {
+    const response = await baseApi.get("/driver/upcoming-trips");
+    return response.data;
+};

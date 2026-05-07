@@ -11,8 +11,8 @@ export const setLogoutHandler = (fn: () => void) => {
 const baseApi = axios.create({
 
 
-    baseURL: "http://172.22.63.32:8000/api",
-    // baseURL: "http://192.168.1.79:8000/api",
+    // baseURL: "http://172.22.63.32:8000/api",
+    baseURL: "http://192.168.1.27:8000/api",
 
     headers: {
         "Content-Type": "application/json",
@@ -45,15 +45,10 @@ baseApi.interceptors.response.use(
 
 
         if (status === 401) {
-            console.log("Unauthorized - Token expired");
-
             await SecureStore.deleteItemAsync("token");
 
-            if (logoutHandler) {
-                logoutHandler();
-            }
+            return Promise.reject(error);
         }
-
 
         if (status === 422) {
             console.log("Validation Error:", error.response.data);

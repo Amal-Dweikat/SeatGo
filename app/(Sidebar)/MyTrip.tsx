@@ -231,7 +231,8 @@ export default function Home() {
                             Price: Number(item.Price),
                             BookedSeats: item.BookedSeats,
                             driver_name: "",
-                            driver_image: ""
+                            driver_image: "",
+
                         }}
                         color={"#FFF8F0"}/>
                     ))}
