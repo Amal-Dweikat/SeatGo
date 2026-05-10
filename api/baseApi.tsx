@@ -6,6 +6,7 @@ import * as SecureStore from "expo-secure-store";
 
 const baseApi = axios.create({
 
+   // baseURL: "http://192.168.1.107:8000/api",
 
     // baseURL: "http://172.22.63.32:8000/api",
     baseURL: "http://192.168.1.27:8000/api",
@@ -41,10 +42,11 @@ baseApi.interceptors.response.use(
 
 
         if (status === 401) {
+            console.log("Unauthorized - Token expired");
             await SecureStore.deleteItemAsync("token");
 
-            return Promise.reject(error);
         }
+
 
         if (status === 422) {
             console.log("Validation Error:", error.response.data);

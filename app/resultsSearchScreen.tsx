@@ -51,23 +51,27 @@ export default function ResultsScreen() {
   const normalizeTime = (time?: string): string => {
     if (!time) return "";
 
+    if (/^\d$/.test(time)) return `0${time}:00`;
+    if (/^\d{2}$/.test(time)) return `${time}:00`;
+    if (/^\d{2}:\d{2}$/.test(time)) return time;
 
-    const match = time.match(/(\d{1,2}):(\d{2})/);
-
-    if (match) {
-      const hours = match[1].padStart(2, "0");
-      const minutes = match[2];
-
-      return `${hours}:${minutes}`;
-    }
-
-
-    const num = Number(time);
-    if (!isNaN(num)) {
-      return `${String(num).padStart(2, "0")}:00`;
-    }
-
-    return "";
+     return time;
+    //   const match = time.match(/(\d{1,2}):(\d{2})/);
+    //
+    //   if (match) {
+    //       const hours = match[1].padStart(2, "0");
+    //       const minutes = match[2];
+    //
+    //       return `${hours}:${minutes}`;
+    //   }
+    //
+    //
+    //   const num = Number(time);
+    //   if (!isNaN(num)) {
+    //       return `${String(num).padStart(2, "0")}:00`;
+    //   }
+    //
+    //   return "";
   };
 
   useEffect(() => {
