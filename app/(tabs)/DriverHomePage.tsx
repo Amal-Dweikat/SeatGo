@@ -1,17 +1,16 @@
 import Hero from "@/components/Hero";
 import { router } from "expo-router";
-import {SafeAreaView, StyleSheet, View, Text, TouchableOpacity, Modal, Pressable, TextInput} from "react-native";
+import {SafeAreaView, StyleSheet, View, Text, TouchableOpacity, Modal,} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-import {useMutation, useQuery} from "@tanstack/react-query";
+import {useMutation, useQuery,useQueryClient} from "@tanstack/react-query";
 import {endTripApi, getCurrentTrip, getDriverStats, getUpcomingTrips, startTripApi} from "@/api/driverApi";
 import {useState} from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import ItemCard from "@/components/ItemCard";
 import { useAuth } from "@/context/AuthContext";
 import baseApi from "@/api/baseApi";
 
 export default function DriverHomePage() {
-    const { data, isLoading } = useQuery({
+    const { data} = useQuery({
         queryKey: ["driver-stats"],
         queryFn: getDriverStats,
     });
@@ -20,7 +19,7 @@ export default function DriverHomePage() {
     const [showRating, setShowRating] = useState(false);
     const queryClient = useQueryClient();
 
-    const { data: trip, isLoading: tripLoading } = useQuery({
+    const { data: trip } = useQuery({
         queryKey: ["current-trip"],
         queryFn: getCurrentTrip,
     });
@@ -79,12 +78,9 @@ export default function DriverHomePage() {
         };
     };
     const [passengers, setPassengers] = useState<Passenger[]>([]);
-    const [id , setid]=useState("")
-    const handlepress = () => {
-        router.push("/FormScheduleTrip");
-    };
 
-    const { data: upcomingTrips, isLoading: upcomingLoading } = useQuery({
+
+    const { data: upcomingTrips } = useQuery({
         queryKey: ["upcoming-trips"],
         queryFn: getUpcomingTrips,
     });

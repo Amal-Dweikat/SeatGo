@@ -10,8 +10,6 @@ import FormInput from "@/components/FormInput";
 import {useForm} from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { createDriverApi } from "@/api/driverApi";
-import * as SecureStore from "expo-secure-store";
-import { Alert } from "react-native";
 import {router} from "expo-router";
 import {useAuth} from "@/context/AuthContext";
 

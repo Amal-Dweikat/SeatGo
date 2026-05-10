@@ -2,11 +2,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
 
-let logoutHandler: (() => void) | null = null;
 
-export const setLogoutHandler = (fn: () => void) => {
-    logoutHandler = fn;
-};
 
 const baseApi = axios.create({
 

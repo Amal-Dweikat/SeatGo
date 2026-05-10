@@ -18,16 +18,6 @@ export const registerApi = (data: {
     return baseApi.post("/register", data);
 };
 
-
-export const getMeApi = () => {
-    return baseApi.get("/me");
-};
-
-
-export const logoutApi = () => {
-    return baseApi.post("/logout");
-};
-
 export const updateProfileApi = (data: any) => {
     return baseApi.put("/user/update", data);
 };

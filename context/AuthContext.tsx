@@ -1,7 +1,7 @@
 import {createContext, useContext, useEffect, useState} from "react";
 import baseApi from "@/api/baseApi";
 import * as SecureStore from "expo-secure-store";
-import { setLogoutHandler } from "@/api/baseApi";
+
 
 type UserType = {
     id: number;
