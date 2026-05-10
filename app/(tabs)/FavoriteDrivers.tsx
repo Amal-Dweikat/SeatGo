@@ -52,6 +52,7 @@ export default function FavoriteDrivers() {
   const renderDriver = ({ item }: any) => {
     return (
       <View style={styles.card}>
+        {/* LEFT */}
         <View style={styles.leftSection}>
           <Image
             source={{
@@ -65,19 +66,23 @@ export default function FavoriteDrivers() {
           <View>
             <Text style={styles.name}>{item.full_name}</Text>
 
-            <View style={styles.ratingContainer}>
-              <Ionicons name="star" size={16} color="#FFA500" />
-
-              <Text style={styles.rating}>{item.average_rating ?? "0.0"}</Text>
+            {/* Rating badge */}
+            <View style={styles.ratingBadge}>
+              <Ionicons name="star" size={14} color="#fff" />
+              <Text style={styles.ratingText}>
+                {item.average_rating ?? "0.0"}
+              </Text>
             </View>
           </View>
         </View>
 
+        {/* REMOVE BUTTON */}
         <TouchableOpacity
           style={styles.removeButton}
           onPress={() => removeDriver(item.id)}
+          activeOpacity={0.7}
         >
-          <Ionicons name="trash" size={22} color="#fff" />
+          <Ionicons name="trash-outline" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
     );
@@ -110,30 +115,36 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#333",
+    fontSize: 30,
+    fontWeight: "800",
+    color: "#222",
     marginBottom: 20,
   },
 
   emptyText: {
     textAlign: "center",
-    marginTop: 40,
+    marginTop: 50,
     fontSize: 16,
-    color: "#777",
+    color: "#888",
   },
 
+  /* CARD */
   card: {
     backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 15,
-    marginBottom: 15,
+    borderRadius: 22,
+    padding: 16,
+    marginBottom: 14,
 
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
 
-    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+
+    elevation: 4,
   },
 
   leftSection: {
@@ -141,38 +152,55 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
+  /* IMAGE */
   image: {
-    width: 65,
-    height: 65,
-    borderRadius: 50,
-    marginRight: 15,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    marginRight: 14,
+    borderWidth: 2,
+    borderColor: "#eee",
   },
 
+  /* NAME */
   name: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
+    fontSize: 17,
+    fontWeight: "700",
+    color: "#222",
   },
 
-  ratingContainer: {
+  /* RATING BADGE */
+  ratingBadge: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 5,
+    backgroundColor: "#FFA500",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 20,
+    marginTop: 6,
+    alignSelf: "flex-start",
   },
 
-  rating: {
-    marginLeft: 5,
-    fontSize: 15,
-    color: "#666",
+  ratingText: {
+    marginLeft: 4,
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 12,
   },
 
+  /* REMOVE BUTTON */
   removeButton: {
-    backgroundColor: "#E55C16",
-    width: 45,
-    height: 45,
-    borderRadius: 50,
+    backgroundColor: "#E74C3C",
+    width: 42,
+    height: 42,
+    borderRadius: 21,
 
     justifyContent: "center",
     alignItems: "center",
+
+    shadowColor: "#E74C3C",
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
   },
 });
