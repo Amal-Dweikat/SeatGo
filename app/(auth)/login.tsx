@@ -17,7 +17,6 @@ import {router} from "expo-router";
 import {useAuth} from "@/context/AuthContext";
 
 
-
 export default function LoginScreen() {
     const { control, handleSubmit } = useForm();
 
@@ -34,10 +33,8 @@ export default function LoginScreen() {
             await SecureStore.setItemAsync("token", token);
 
             setUser(user);
-            await SecureStore.setItemAsync("role", user.role);
+            router.replace("/home");
 
-
-                router.replace("/home");
         },
 
         onError: (err: any) => {
@@ -51,7 +48,6 @@ export default function LoginScreen() {
 
     const onSubmit = (data: any) => {
         loginMutation.mutate(data);
-
     };
 
     return (

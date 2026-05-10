@@ -30,8 +30,8 @@ export default function Home() {
 
         let baseList =
             tab === "Upcoming"
-                ? expanded.filter(t => t.tripDate.isSameOrAfter(today))
-                : expanded.filter(t => t.tripDate.isBefore(today));
+                ? expanded.filter(t => t.tripDate.isSameOrAfter(today) && t.status !== "completed" )
+                : expanded.filter(t => t.tripDate.isBefore(today)|| t.status === "completed" );
 
         if (selectedDate) {
             baseList = baseList.filter(t =>

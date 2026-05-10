@@ -1,4 +1,4 @@
-import {Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import AuthBackground from "@/components/AuthBackground";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {useForm} from "react-hook-form";
@@ -7,60 +7,33 @@ import {Ionicons} from "@expo/vector-icons";
 import FormInput from "@/components/FormInput";
 import InputGridCell from "@/components/InputGridCell";
 import { Picker } from "@react-native-picker/picker";
-import {useState} from "react";
-import {scheduleTrip} from "@/api/TripDetaild";
+import { useState} from "react";
+import { scheduleTrip} from "@/api/TripDetaild";
 import {router} from "expo-router";
 import Back from "@/components/Back";
+import {notificationFavorite} from "@/api/notification";
+import ChooseDate from "@/components/ChooseDateRepeat";
+import {formatDateInput} from "@/services/FormatDate";
 
 export default function FormScheduleTrip(){
-    const { control, handleSubmit } = useForm();
+    const { control, handleSubmit ,watch} = useForm();
     const [answer, setAnswer] = useState(false);
     const [selectedDays, setSelectedDays] = useState<string[]>([]);
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const [endDate, setEndDate] = useState("");
+    const [endDate, setEndDate] = useState<any>("");
     const onSubmit = async (data: any) => {
+
         const payload = {
             ...data,
-
             DriverWantRepeat: answer,
             DriverSelectedDays:answer ? selectedDays : null,
             EndRepeat: answer ? endDate : null,
         };
         await scheduleTrip(payload);
-
+        await notificationFavorite();
         router.replace("/home");
     };
-    const toggleDay = (day: string) => {
-        if (selectedDays.includes(day)) {
-            setSelectedDays(selectedDays.filter(d => d !== day));
-        } else {
-            setSelectedDays([...selectedDays, day]);
-        }
-    };
-    const formatDate = (text: string) => {
-        const today = new Date().toISOString().split("T")[0];
-        const cleaned = text.replace(/\D/g, "");
+    const tripDate = watch("date");
 
-        let formatted = cleaned;
-
-        if (cleaned.length > 4) {
-            formatted = cleaned.slice(0, 4) + "-" + cleaned.slice(4);
-        }
-
-        if (cleaned.length > 6) {
-            formatted =
-                cleaned.slice(0, 4) +
-                "-" +
-                cleaned.slice(4, 6) +
-                "-" +
-                cleaned.slice(6, 8);
-        }
-        if (text.length === 10 && text < today) {
-            Alert.alert("InValid Date", "An expiry date cannot be selected Enter Date Valid ");
-            return;
-        }
-        setEndDate(formatted);
-    };
 
     return(
     <SafeAreaView style={styles.container}>
@@ -69,8 +42,8 @@ export default function FormScheduleTrip(){
         <View style={{marginTop:10}}>
         <Back/>
         </View>
-    <View style={styles.content}>
-    <View style={styles.cardInfoDr}>
+        <View style={styles.content}>
+            <View style={styles.cardInfoDr}>
        <InputCityRow
        label="FROM"
        nameCity="FromCity"
@@ -90,8 +63,8 @@ export default function FormScheduleTrip(){
 
     </View>
 
-    <View style={styles.cardComplete}>
-        <View style={styles.row }>
+            <View style={styles.cardComplete}>
+                 <View style={styles.row }>
             <InputGridCell
                 leftCell={true}
                 rightCell={false}
@@ -111,9 +84,9 @@ export default function FormScheduleTrip(){
                 nameIcon={"calendar-outline"}/>
         </View>
 
-        <View style={styles.horizontalLine} />
+                 <View style={styles.horizontalLine} />
 
-        <View style={styles.row}>
+                 <View style={styles.row}>
             <InputGridCell
                 leftCell={true}
                 rightCell={false}
@@ -129,20 +102,26 @@ export default function FormScheduleTrip(){
                 control={control}
                 placeholder={"Number Seats"}
                 text={"Available Seats"}
-                nameIcon={"people-outline"}/>
+                nameIcon={"people-outline"}
+              />
 
      </View>
-    </View>
+            </View>
 
-<View style={styles.cardComplete}>
-    <ScrollView style={[styles.container,{padding:5,backgroundColor: "#F5F5F5",marginBottom:5}]}>
+            <View style={styles.cardComplete}>
+                <ScrollView style={[styles.container,{padding:5,backgroundColor: "#F5F5F5",marginBottom:5}]}>
+
         <Text style={styles.text}>{"Transport"}</Text>
         <FormInput control={control} name={"transport"} placeholder={"Select transport such as 'Bus,Car'"}/>
+
         <View style={[styles.horizontalLine,{marginBottom:5,}]} />
+
         <Text style={styles.text}>{"Note"}</Text>
         <FormInput control={control} name={"note"} placeholder={"Write note for passengers "}/>
+
         <View style={[styles.horizontalLine,{marginBottom:5,}]} />
         <Text style={styles.text}>{"Do you want this trip to be a recurring one?"}</Text>
+
         <View style={styles.pickerBox}>
             <Picker
                 selectedValue={answer}
@@ -157,41 +136,24 @@ export default function FormScheduleTrip(){
             <>
                 <View style={[styles.horizontalLine,{marginBottom:5,}]} />
 
-                <View style={styles.daysContainer}>
-                    <Text style={[styles.noteContent,{marginBottom:20}]}>Choose the days on which you want to repeat the trip</Text>
-                    {days.map((day) => {
-                        const isSelected = selectedDays.includes(day);
-
-                        return (
-
-                            <Pressable
-                                key={day}
-                                onPress={() => toggleDay(day)}
-                                style={[
-                                    styles.dayCircle,
-                                    isSelected && styles.daySelected
-                                ]}
-                            >
-                                <Text
-                                    style={[
-                                        styles.dayText,
-                                        isSelected && styles.dayTextSelected
-                                    ]}
-                                >
-                                    {day}
-                                </Text>
-                            </Pressable>
-                        );
-                    })}
-                </View>
                 <View style={[styles.horizontalLine,{marginBottom:5,}]} />
+                <ChooseDate selectedDays={selectedDays} setSelectedDays={setSelectedDays}/>
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
                     <Ionicons name="calendar-outline" size={16} color="#E55C16" />
 
                     <TextInput
                         placeholder="End date for repeat: YYYY-MM-DD"
                         value={endDate || ""}
-                        onChangeText={formatDate}
+                        onChangeText={(text) => {
+
+                            const formatted =
+                                formatDateInput(text,tripDate);
+
+                            if (formatted !== null) {
+
+                                setEndDate(formatted);
+                            }
+                        }}
                         style={{ flex: 1 }}
                     />
                 </View>
@@ -201,9 +163,8 @@ export default function FormScheduleTrip(){
         <Text style={{color:"white"}}>{"Schedule"}</Text>
         </TouchableOpacity>
     </ScrollView>
-</View>
-    </View>
-
+            </View>
+        </View>
 
 
 
@@ -215,7 +176,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#F2F2F2",
-
     },
     content: {
         flex: .8,
@@ -268,7 +228,8 @@ gap:5,
         shadowOpacity: 0.1,
         shadowRadius: 10,
         padding :10,
-    },card: {
+    },
+    card: {
         backgroundColor: '#fff',
         borderRadius: 15,
         padding: 10,
@@ -293,7 +254,8 @@ gap:5,
         fontSize: 10,
         marginBottom:5,
         color: '#333',
-    }, pickerBox: {
+    },
+    pickerBox: {
         borderWidth: 1,
         borderColor: "#CCC",
         borderRadius: 10,
@@ -301,40 +263,7 @@ gap:5,
         backgroundColor: "#fff",
 
         overflow: "hidden",
-    }, daysContainer: {
-        flexDirection: "row",
-        justifyContent:"center",
-        flexWrap: "wrap",
-        gap: 10,
-        marginTop: 10,
     },
-
-    dayCircle: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#F5F5F5",
-    },
-
-    daySelected: {
-        backgroundColor: "#FDE5D8",
-    },
-
-    dayText: {
-        fontSize: 12,
-        color: "#555",
-    },
-
-    dayTextSelected: {
-        color: "#E55C16",
-        fontWeight: "bold",
-    },
-    noteContent: {
-        fontSize: 13,
-        color: '#666',
-        lineHeight: 18 },
     button:{
       width:"35%",
         backgroundColor:"#E55C16",

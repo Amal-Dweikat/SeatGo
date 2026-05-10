@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import useNotifications from "@/hooks/GetNotification";
 
 type Trip = {
   id: number;
@@ -37,6 +38,7 @@ export default function UserHomeScreen() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(false);
 
+  useNotifications();
   useEffect(() => {
     const loadTrips = async () => {
       try {
@@ -55,7 +57,6 @@ export default function UserHomeScreen() {
         setLoading(false);
       }
     };
-
     loadTrips();
   }, []);
 
@@ -95,6 +96,19 @@ export default function UserHomeScreen() {
           <Text style={styles.searchText}>🔍 Tap to search trips</Text>
         </TouchableOpacity>
       )}
+
+      {/*
+      <TouchableOpacity
+          onPress={() => bookingStatus(55,"approved")}
+      >
+        <Text>Accept</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+          onPress={() => bookingStatus(56,"rejected")}
+      >
+        <Text>rejected</Text>
+      </TouchableOpacity>
+*/}
 
       {open && (
         <View style={styles.card}>

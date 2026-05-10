@@ -1,24 +1,18 @@
-import {View, Text, StyleSheet, Dimensions, Pressable} from "react-native";
+import {View, Text, StyleSheet, Dimensions} from "react-native";
 import Svg, { Path } from "react-native-svg";
-import {router, useLocalSearchParams} from "expo-router";
-import {Ionicons} from "@expo/vector-icons";
+import { useLocalSearchParams} from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CardInfoDriver from "@/components/CradInfoDriver";
 import TripCard from "@/components/ContainerTripSummary";
 import {useEffect, useState} from "react";
 import {returnTripInfo} from "@/api/TripDetaild";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import Back from "@/components/Back";
 
 export default function TripDetails() {
     const [loading, setLoading] = useState(true);
     const { id } = useLocalSearchParams();
     const tripId = id ? Number(id) : null;
-
-
-    const handlePress=()=>{
-    router.back()
-    }
     const setBookedSeatsHandler = (num :number) => {
         setBookedSeats(num);
     };
@@ -38,10 +32,10 @@ export default function TripDetails() {
 
                 console.log("RESPONSE OK");
 
-                setTrip(res.data.Trip);
+                setTrip(res.data.Trip[0]);
                 setCar(res.data.Cars);
                 setDriver(res.data.Drivers);
-                setBookedSeats(res.data.Trip.BookedSeats);
+                setBookedSeats(res.data.Trip[0].BookedSeats);
             } catch (err) {
                 if (axios.isAxiosError(err)) {
                     console.log("STATUS:", err.response?.status);
@@ -109,6 +103,7 @@ export default function TripDetails() {
                          TripRepeat={trip?.TripRepeat}
                          bookedSeats={bookedSeats}
                          totalSeats=   {trip?.TotalSeats}
+                         endRepeatFromDriver={trip.repeat_trip?.EndRepeat}
                          id={tripId}
                          onChangeSeat={setBookedSeatsHandler}
                      />
@@ -117,7 +112,6 @@ export default function TripDetails() {
 
         </View>
         </SafeAreaView>
-
      );
 }
 const { width, height } = Dimensions.get('window');
@@ -132,17 +126,7 @@ const styles= StyleSheet.create({
         flex: 1,
 
     },
-    Back :{
-        alignItems:"center",
-        justifyContent:"center",
-        position:"absolute",
-        backgroundColor:"#F2F2F2",
-        width:40,
-        height:40,
-        borderRadius:20,
-        top:"15%",
-        left:"5%",
-    },
+
     title : {
         position: "absolute",
         top: "55%",

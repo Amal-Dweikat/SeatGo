@@ -2,18 +2,25 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import {QueryClientProvider,QueryClient} from "@tanstack/react-query";
 import {AuthProvider} from "@/context/AuthContext";
 
+import * as Notifications from "expo-notifications";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 export const unstable_settings = {
   anchor: '(tabs)',
 };
 
-
 const queryClient = new QueryClient();
-
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
