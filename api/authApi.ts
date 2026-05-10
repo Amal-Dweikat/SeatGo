@@ -29,7 +29,13 @@ export const logoutApi = () => {
     return baseApi.post("/logout");
 };
 
+export const getFavoriteDriversApi = () => {
+  return baseApi.get("/favorite-drivers");
+};
 
+export const removeFavoriteDriverApi = (driverId: number) => {
+  return baseApi.delete(`/favorite-drivers/${driverId}`);
+};
 
 export const forgotPasswordApi = (data: { email: string }) => {
   return api.post("/forgot-password", data);
