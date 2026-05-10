@@ -1,54 +1,29 @@
 import {View, Text, StyleSheet, ScrollView, Pressable, Switch, TextInput, Alert} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import {useState} from "react";
+import { useState} from "react";
 import CardInfoTrip from "./CardInfoTrip";
-import {BookingApi,BookingData} from "@/api/TripDetaild";
-
-export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bookedSeats,totalSeats, departureTime, arrivalTime, date, note,id ,onChangeSeat,TripRepeat}:any)  {
+import {BookingApi, BookingData} from "@/api/TripDetaild";
+import {generateRepeatedDates, scheduleTripReminder} from "@/services/notification2";
+import ChooseDate from "@/components/ChooseDateRepeat";
+import { formatDateInput } from "@/services/FormatDate";
+export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bookedSeats,totalSeats, departureTime, arrivalTime, date, note,id ,onChangeSeat,TripRepeat,endRepeatFromDriver}:any)  {
 
 
     const [showBooking,setShowBooking]=useState(false);
     const [seats, setSeats] = useState(1);
     const [repeat, setRepeat] = useState(false);
-    const [endDate, setEndDate] = useState("");
+    const [endDate, setEndDate] = useState<any>("");
     const isFull = bookedSeats >= totalSeats;
     const isRepeatFromDriver=TripRepeat;
     const [selectedDays, setSelectedDays] = useState<string[]>([]);
-    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-    const toggleDay = (day: string) => {
-        if (selectedDays.includes(day)) {
-            setSelectedDays(selectedDays.filter(d => d !== day));
-        } else {
-            setSelectedDays([...selectedDays, day]);
-        }
-    };
-    const formatDate = (text: string) => {
-        const today = new Date().toISOString().split("T")[0];
-        const cleaned = text.replace(/\D/g, "");
+    const tripDateTime = new Date(
+        `${date}T${departureTime}`
+    );
 
-        let formatted = cleaned;
-
-        if (cleaned.length > 4) {
-            formatted = cleaned.slice(0, 4) + "-" + cleaned.slice(4);
-        }
-
-        if (cleaned.length > 6) {
-            formatted =
-                cleaned.slice(0, 4) +
-                "-" +
-                cleaned.slice(4, 6) +
-                "-" +
-                cleaned.slice(6, 8);
-        }
-        if (text.length === 10 && text < today) {
-            Alert.alert("InValid Date", "An expiry date cannot be selected Enter Date Valid ");
-            return;
-        }
-        setEndDate(formatted);
-    };
+    const isTripEnded =
+        tripDateTime < new Date();
     const handleConfirm =async ()=>{
-
         const data: BookingData = {
             NumSeat: seats,
             WantRepeat: repeat,
@@ -59,6 +34,15 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
 
         try {
             await BookingApi(data);
+            if (!repeat) {
+                await scheduleTripReminder(date, departureTime);
+            }
+            else {
+                const repeatedDates = generateRepeatedDates(date, endDate, selectedDays);//function to fetch all date included in the repeated trip
+                for (const tripDate of repeatedDates) {
+                    await scheduleTripReminder(tripDate, departureTime);
+                }
+            }
             onChangeSeat(bookedSeats + seats);
             setShowBooking(false);
 
@@ -73,7 +57,7 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
                 <Text style={styles.sectionTitle}>Trip Summary</Text>
                   <CardInfoTrip totalSeats={totalSeats} bookedSeats={bookedSeats} fromCity={fromCity} toCity={toCity} fromArea={fromArea} toArea={toArea} price={price} departureTime={departureTime} arrivalTime={arrivalTime} date={date} note={note}  ></CardInfoTrip>
                 {/* Button Go Book */}
-                {!isFull && !showBooking &&(
+                {!isFull && !showBooking &&!isTripEnded&&(
                     <Pressable style={styles.bookButton} onPress={()=>setShowBooking(!showBooking) }>
                         <Text style={styles.bookButtonText}>GO TO BOOK</Text>
                     </Pressable>
@@ -106,7 +90,7 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
                             </View>
                         </View>
 
-                        {/* Section Reapet */}
+                        {/* Section Repeat */}
                         {/*To show or not to show the repeat option*/}
                         { isRepeatFromDriver &&  (
                         <>
@@ -126,33 +110,8 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
                         { repeat &&  (
                             <>
                             <View style={styles.horizontalDivider} />
-                            <View style={styles.daysContainer}>
-                                <Text style={[styles.noteContent,{marginBottom:20}]}>{"Choose the days on which you want to repeat the trip"}</Text>
-                                {days.map((day) => {
-                                    const isSelected = selectedDays.includes(day);
-
-                                    return (
-
-                                        <Pressable
-                                            key={day}
-                                            onPress={() => toggleDay(day)}
-                                            style={[
-                                                styles.dayCircle,
-                                                isSelected && styles.daySelected
-                                            ]}
-                                        >
-                                            <Text
-                                                style={[
-                                                    styles.dayText,
-                                                    isSelected && styles.dayTextSelected
-                                                ]}
-                                            >
-                                                {day}
-                                            </Text>
-                                        </Pressable>
-                                    );
-                                })}
-                            </View>
+                           <ChooseDate selectedDays={selectedDays}
+                                       setSelectedDays={setSelectedDays}></ChooseDate>
                             <View style={styles.horizontalDivider} />
                                 <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
                                     <Ionicons name="calendar-outline" size={16} color="#E55C16" />
@@ -160,7 +119,30 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
                                     <TextInput
                                         placeholder="End date for repeat: YYYY-MM-DD"
                                         value={endDate}
-                                        onChangeText={formatDate}
+                                        onChangeText={(text) => {
+
+                                            const formatted :any =
+                                                formatDateInput(text,date);
+
+                                            if (formatted === null) {
+                                                return;
+                                            }
+
+
+                                            if (
+                                                formatted > endRepeatFromDriver
+                                            ) {
+
+                                                Alert.alert(
+                                                    "Invalid Date",
+                                                    `Maximum allowed date is ${endRepeatFromDriver}`
+                                                );
+
+                                                return;
+                                            }
+
+                                            setEndDate(formatted);
+                                        }}
                                         style={{ flex: 1 }}
                                     />
                                 </View>
@@ -248,34 +230,5 @@ const styles= StyleSheet.create({
         alignItems: "center",
         gap: 10,
     },
-    daysContainer: {
-        flexDirection: "row",
-        justifyContent:"center",
-        flexWrap: "wrap",
-        gap: 10,
-        marginTop: 10,
-    },
 
-    dayCircle: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#F5F5F5",
-    },
-
-    daySelected: {
-        backgroundColor: "#FDE5D8",
-    },
-
-    dayText: {
-        fontSize: 12,
-        color: "#555",
-    },
-
-    dayTextSelected: {
-        color: "#E55C16",
-        fontWeight: "bold",
-    },
 });

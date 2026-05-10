@@ -6,7 +6,12 @@ export default function CardInfoTrip( props:any ){
 
 
     const isFull = (props.bookedSeats) >= (props.totalSeats);
+    const tripDateTime = new Date(
+        `${props.date}T${props.departureTime}`
+    );
 
+    const isTripEnded =
+        tripDateTime < new Date();
     return (
         <>
         <View style={styles.locationRow}>
@@ -78,21 +83,58 @@ export default function CardInfoTrip( props:any ){
     <View style={styles.statusRow}>
         <Text style={styles.statusLabel}>Booking Status:</Text>
 
-        <View style={[
-            styles.statusBadge,
-            isFull ? styles.fullBadge : styles.activeBadge
-        ]}>
-            <View style={[
-                styles.statusDot,
-                { backgroundColor: isFull ? '#E74C3C' : '#4CAF50' }
-            ]} />
-            <Text style={[
-                styles.statusText,
-                { color: isFull ? '#E74C3C' : '#4CAF50' }
-            ]}>
-                {isFull ? "FULL" : "ACTIVE"}
+        <View
+            style={[
+
+                styles.statusBadge,
+                isTripEnded
+                    ? styles.endedBadge
+                    : isFull
+                        ? styles.fullBadge
+                        : styles.activeBadge
+            ]}
+        >
+            <View
+                style={[
+
+                    styles.statusDot,
+
+                    {
+                        backgroundColor:
+                            isTripEnded
+                                ? "#777"
+                                : isFull
+                                    ? "#E74C3C"
+                                    : "#4CAF50"
+                    }
+                ]}
+            />
+            <Text
+                style={[
+
+                    styles.statusText,
+                    {
+                        color:
+                            isTripEnded
+                                ? "#777"
+                                : isFull
+                                    ? "#E74C3C"
+                                    : "#4CAF50"
+                    }
+                ]}
+            >
+                {
+                    isTripEnded
+                        ? "ENDED"
+                        : isFull
+                            ? "FULL"
+                            : "AVAILABLE"
+                }
+
             </Text>
+
         </View>
+
     </View>
 
     <View style={styles.horizontalDivider} />
@@ -178,7 +220,9 @@ const styles= StyleSheet.create({
     fullBadge: {
         backgroundColor: '#FDEDEC',
     },
-
+    endedBadge: {
+        backgroundColor: "#EEE",
+    },
     noteBox: { backgroundColor: '#F9F9F9',
         padding: 12, borderRadius: 10,
         marginTop: 20,

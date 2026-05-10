@@ -1,5 +1,4 @@
 import {StyleSheet, Text, View} from "react-native";
-import {Ionicons} from "@expo/vector-icons";
 import FormInput from "@/components/FormInput";
 
 export default function InputGridCell(props:any) {
