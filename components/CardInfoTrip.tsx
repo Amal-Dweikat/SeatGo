@@ -223,7 +223,7 @@ const styles= StyleSheet.create({
     endedBadge: {
         backgroundColor: "#EEE",
     },
-    noteBox: { backgroundColor: '#F9F9F9',
+    noteBox: { backgroundColor: '#fff8f0',
         padding: 12, borderRadius: 10,
         marginTop: 20,
         borderLeftWidth: 4,

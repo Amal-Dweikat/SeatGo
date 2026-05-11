@@ -41,7 +41,6 @@ export async function scheduleTripReminder(date: string, time: string) {
         });
         return;
     }
-    console.log("di=one")
 
     await Notifications.scheduleNotificationAsync({
         content: {

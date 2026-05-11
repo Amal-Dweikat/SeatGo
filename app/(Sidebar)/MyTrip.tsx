@@ -30,8 +30,8 @@ export default function Home() {
 
         let baseList =
             tab === "Upcoming"
-                ? expanded.filter(t => t.tripDate.isSameOrAfter(today) && t.status !== "completed" )
-                : expanded.filter(t => t.tripDate.isBefore(today)|| t.status === "completed" );
+                ? expanded.filter(t => t.tripDate.isSameOrAfter(today)  )
+                : expanded.filter(t => t.tripDate.isBefore(today) );
 
         if (selectedDate) {
             baseList = baseList.filter(t =>
@@ -191,11 +191,7 @@ export default function Home() {
         </View>
             </ImageBackground>
 
-            <ImageBackground
-                source={require("../../assets/background.png")}
-                style={{ flex: .65 }}
-                resizeMode="cover"
-                borderRadius={20}
+            <View style={{flex:.65,backgroundColor:"#fbf0e6",borderRadius:30}}
             >
             {tab === "Upcoming" && (
                 <ScrollView style={styles.cardTrip}>
@@ -237,7 +233,7 @@ export default function Home() {
                     ))}
                 </ScrollView>
             )}
-            </ImageBackground>
+            </View>
         </SafeAreaView>
 
     );

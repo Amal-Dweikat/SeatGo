@@ -75,7 +75,7 @@ export default function TripDetails() {
                         />
                         <Path
                             d="M0,17 C45,30 40,0 100,10"
-                            stroke="#F2F2F2"
+                            stroke="#fbf0e6"
                             strokeWidth="1"
                             fill="none"
                         />
@@ -120,7 +120,7 @@ const styles= StyleSheet.create({
     container: {
         flex: 1,
         gap:60,
-        backgroundColor: "#F2F2F2",
+        backgroundColor: "#fbf0e6",
     },
     header: {
         flex: 1,
@@ -156,25 +156,17 @@ const styles= StyleSheet.create({
     },
     cardComplete :{
         flex :2.5,
-        backgroundColor:"#F7F7F7",
+        backgroundColor:"#fbf0e6",
         borderRadius: 20,
         width: "100%",
         height:"100%",
         borderWidth: 1.5,
-        borderColor: "rgba(255,255,255,0.6)",
+        borderColor: "#fbefe0",
         elevation: 6,
         shadowColor: "#000",
         shadowOpacity: 0.1,
         shadowRadius: 10,
         padding :10,
     },
-    card: {
-        gap:15,
-        width: "90%",
-        height:"100%",
-        alignSelf: "center",
-        color: "#E55C16",
-       // backgroundColor: "#E55C16",
-        borderRadius: 20,
-    },
+
 });

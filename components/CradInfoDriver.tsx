@@ -80,12 +80,12 @@ return(
 const styles= StyleSheet.create({
     cardInfoDr :{
         flex :1.5,
-        backgroundColor:"#F7F7F7",
+        backgroundColor:"#fff8f0",
         borderRadius: 20,
         width: "100%",
         height:"100%",
         borderWidth: 1.5,
-        borderColor: "rgba(255,255,255,0.6)",
+        borderColor: "#fff8f0",
         elevation: 6,
         shadowColor: "#000",
         shadowOpacity: 0.1,

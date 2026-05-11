@@ -170,10 +170,10 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
 const styles= StyleSheet.create({
 
     container: { flex: 1,
-        backgroundColor: '#F5F5F5'
+        backgroundColor: '#fbf0e6'
         , padding: 5 },
     card: {
-        backgroundColor: '#fff',
+        backgroundColor: '#fff8f0',
         borderRadius: 15,
         padding: 10,
         marginBottom: 20,

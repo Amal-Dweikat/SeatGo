@@ -27,7 +27,8 @@ const styles = StyleSheet.create({
     },
     cellLabel: {
         fontSize: 10,
-        marginBottom:1,
-        color: '#333',
+        marginBottom:2,
+
+        color: '#000',
     }
 });
