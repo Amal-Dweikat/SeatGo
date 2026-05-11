@@ -5,6 +5,7 @@ import * as SecureStore from "expo-secure-store";
 import {DrawerContentScrollView, DrawerItemList} from "@react-navigation/drawer";
 import {Pressable, View,StyleSheet,Text,Image} from "react-native";
 import MyIcon from "@/components/MyIcon";
+import { useAuth } from "@/context/AuthContext";
 
 
 
@@ -16,8 +17,10 @@ import MyIcon from "@/components/MyIcon";
             if (hour < 18) return "Good Afternoon 🌤️";
             return "Good Evening 🌙";
         };
+        const { logout } = useAuth();
+
         const handleLogout = async () => {
-            await SecureStore.deleteItemAsync("token");
+            await logout();
             router.replace("/login");
         }; return (
             <DrawerContentScrollView

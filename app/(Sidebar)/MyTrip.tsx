@@ -5,6 +5,7 @@ import moment from "moment";
 import ItemCard from "@/components/ItemCard";
 import {GetTrip} from "@/api/TripDetaild";
 import {useAuth} from "@/context/AuthContext";
+import {router} from "expo-router";
 
 export default function Home() {
 
@@ -168,7 +169,7 @@ export default function Home() {
 
             <CalendarStrip
                 scrollable
-                style={{ height: 120, paddingTop: 20 ,borderRadius:20,shadowColor: "#000",
+                style={{ height: 120, paddingTop: 30 ,borderRadius:20,shadowColor: "#000",width:370,marginTop:25,
                     shadowOpacity: 0.05,
                     shadowRadius: 20,
                     elevation: 5}}
@@ -208,7 +209,13 @@ export default function Home() {
                             driver_name: "",
                             driver_image: ""
                         }}
-                                  color={"#FFF8F0"} />
+                                  color={"#FFF8F0"}
+                                  onPress={() =>
+                                      router.push({
+                                          pathname: "/TripDetails/[id]",
+                                          params: { id: item.id },
+                                      })
+                                  }/>
 
                     ))}
                 </ScrollView>
@@ -227,7 +234,8 @@ export default function Home() {
                             Price: Number(item.Price),
                             BookedSeats: item.BookedSeats,
                             driver_name: "",
-                            driver_image: ""
+                            driver_image: "",
+
                         }}
                         color={"#FFF8F0"}/>
                     ))}

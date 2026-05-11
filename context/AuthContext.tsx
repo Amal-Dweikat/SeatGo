@@ -1,7 +1,7 @@
 import {createContext, useContext, useEffect, useState} from "react";
 import baseApi from "@/api/baseApi";
 import * as SecureStore from "expo-secure-store";
-import { setLogoutHandler } from "@/api/baseApi";
+
 
 type UserType = {
     id: number;
@@ -13,23 +13,35 @@ type UserType = {
     profile_picture?: string;
 };
 
+
+
 type AuthContextType = {
     user: UserType | null;
     setUser: (user: UserType | null) => void;
     loading: boolean;
+    logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
     user: null,
     setUser: () => {},
     loading: true,
+    logout: async () => {},
+
 });
 
 export const AuthProvider = ({ children }: any) => {
     const [user, setUser] = useState<UserType | null>(null);
     const [loading, setLoading] = useState(true);
 
+
     const logout = async () => {
+        try {
+            await baseApi.post("/logout");
+        } catch (e) {
+            console.log("Logout API failed");
+        }
+
         await SecureStore.deleteItemAsync("token");
         setUser(null);
     };
@@ -61,11 +73,9 @@ export const AuthProvider = ({ children }: any) => {
         loadUser();
     }, []);
 
-    useEffect(() => {
-        setLogoutHandler(logout);
-    }, []);
+
     return (
-        <AuthContext.Provider value={{ user, setUser, loading }}>
+        <AuthContext.Provider value={{ user, setUser, loading, logout }}>
             {children}
         </AuthContext.Provider>
     );

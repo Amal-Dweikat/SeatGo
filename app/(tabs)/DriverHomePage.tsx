@@ -1,14 +1,16 @@
 import Hero from "@/components/Hero";
 import { router } from "expo-router";
-import {SafeAreaView, StyleSheet, View, Text, TouchableOpacity, Modal, Pressable, TextInput} from "react-native";
+import {SafeAreaView, StyleSheet, View, Text, TouchableOpacity, Modal,} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-import {useMutation, useQuery} from "@tanstack/react-query";
-import {endTripApi, getCurrentTrip, getDriverStats, startTripApi} from "@/api/driverApi";
+import {useMutation, useQuery,useQueryClient} from "@tanstack/react-query";
+import {endTripApi, getCurrentTrip, getDriverStats, getUpcomingTrips, startTripApi} from "@/api/driverApi";
 import {useState} from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import ItemCard from "@/components/ItemCard";
+import { useAuth } from "@/context/AuthContext";
+import baseApi from "@/api/baseApi";
 
 export default function DriverHomePage() {
-    const { data, isLoading } = useQuery({
+    const { data} = useQuery({
         queryKey: ["driver-stats"],
         queryFn: getDriverStats,
     });
@@ -17,7 +19,7 @@ export default function DriverHomePage() {
     const [showRating, setShowRating] = useState(false);
     const queryClient = useQueryClient();
 
-    const { data: trip, isLoading: tripLoading } = useQuery({
+    const { data: trip } = useQuery({
         queryKey: ["current-trip"],
         queryFn: getCurrentTrip,
     });
@@ -40,22 +42,48 @@ export default function DriverHomePage() {
 
     const endMutation = useMutation({
         mutationFn: endTripApi,
-        onSuccess: () => {
+        onSuccess: (res) => {
+            setPassengers(res.data.trip.bookings);
             setShowRating(true);
+
+
             queryClient.invalidateQueries({
                 queryKey: ["current-trip"],
             });
 
             queryClient.invalidateQueries({
                 queryKey: ["driver-stats"],
-            });;
+            });
         },
     });
-
-    const [id , setid]=useState("")
-    const handlepress = () => {
-        router.push("/FormScheduleTrip");
+    const [ratings, setRatings] = useState<Record<number, number>>({});
+    const { user } = useAuth();
+    const ratePassenger = async (
+        userId: number,
+        tripId: number,
+        value: number
+    ) => {
+        await baseApi.post("/rating", {
+            trip_id: tripId,
+            rater_user_id: user?.id,
+            rated_user_id: userId,
+            rating: value,
+        });
     };
+    type Passenger = {
+        id: number;
+        user: {
+            id: number;
+            full_name: string;
+        };
+    };
+    const [passengers, setPassengers] = useState<Passenger[]>([]);
+
+
+    const { data: upcomingTrips } = useQuery({
+        queryKey: ["upcoming-trips"],
+        queryFn: getUpcomingTrips,
+    });
 
     return (
 
@@ -100,7 +128,7 @@ export default function DriverHomePage() {
             </View>
 
 
-            {trip && trip.status !== "completed" &&(
+            {trip?.id && trip.status !== "completed" &&(
                 <View style={styles.tripCard}>
                     <View style={styles.routeRow}>
                     <Ionicons name="car-outline" size={25} color="#E55C16" />
@@ -147,20 +175,70 @@ export default function DriverHomePage() {
             <Modal visible={showRating} transparent animationType="slide">
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
+
                         <Text style={{ fontSize: 18, fontWeight: "bold" }}>
                             Rate Your Passengers
                         </Text>
 
-                        <TouchableOpacity
-                            style={styles.submitButton}
-                            onPress={() => setShowRating(false)}
-                        >
-                            <Text style={{ color: "#fff" }}>Submit</Text>
+                        {passengers.map((p) => (
+                            <View key={p.id} style={{ marginVertical: 10 }}>
+
+                                <Text>{p.user.full_name}</Text>
+
+                                <View style={{ flexDirection: "row", marginVertical: 10 }}>
+                                    {[1,2,3,4,5].map((star) => (
+                                        <TouchableOpacity
+                                            key={star}
+                                            onPress={() =>
+                                                setRatings({
+                                                    ...ratings,
+                                                    [p.user.id]: star,
+                                                })
+                                            }
+                                        >
+                                            <Ionicons
+                                                name={star <= (ratings[p.user.id] || 0) ? "star" : "star-outline"}
+                                                size={30}
+                                                color="gold"
+                                            />
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+
+                            </View>
+                        ))}
+
+                        <TouchableOpacity onPress={() => {
+                            passengers.forEach((p) =>
+                                ratePassenger(
+                                    p.user.id,
+                                    trip.id,
+                                    ratings[p.user.id] || 0
+                                )
+                            );
+                            setShowRating(false);
+                        }}>
+                            <Text>Submit Rating</Text>
                         </TouchableOpacity>
+
                     </View>
                 </View>
             </Modal>
+            <Text style={styles.sectionTitle}>Upcoming Trips</Text>
 
+            {upcomingTrips?.map((item: any) => (
+                <ItemCard
+                    key={item.id}
+                    item={item}
+                    color={"#FFF8F0"}
+                    onPress={() =>
+                        router.push({
+                            pathname: "/TripDetails/[id]",
+                            params: { id: item.id },
+                        })
+                    }
+                />
+            ))}
 
 
 
@@ -315,7 +393,13 @@ const styles = StyleSheet.create({
         borderRadius: 10,
     },
 
-
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginHorizontal: 10,
+        marginTop: 15,
+        marginBottom: 10,
+    },
 
 
 

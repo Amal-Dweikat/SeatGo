@@ -1,4 +1,4 @@
-import {Dimensions, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Alert,Dimensions, Pressable, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import Svg, {Path} from "react-native-svg";
 import {Ionicons} from "@expo/vector-icons";
 import {SafeAreaView} from "react-native-safe-area-context";
@@ -10,10 +10,8 @@ import {useMutation} from "@tanstack/react-query";
 import FormInput from "@/components/FormInput";
 import {updatePasswordApi, updateProfileApi} from "@/api/authApi";
 import { useRef, useState } from "react";
-import { Alert, Image } from "react-native";
-import {Camera, CameraView, useCameraPermissions} from "expo-camera";
+import { CameraView, useCameraPermissions} from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
-import * as SecureStore from "expo-secure-store";
 import baseApi from "@/api/baseApi";
 
 

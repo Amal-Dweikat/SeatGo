@@ -10,8 +10,6 @@ import FormInput from "@/components/FormInput";
 import {useForm} from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { createDriverApi } from "@/api/driverApi";
-import * as SecureStore from "expo-secure-store";
-import { Alert } from "react-native";
 import {router} from "expo-router";
 import {useAuth} from "@/context/AuthContext";
 
@@ -22,8 +20,7 @@ export default function DriverForm() {
         mutationFn: createDriverApi,
 
         onSuccess: async (res) => {
-            console.log("API RESPONSE:", res.data);
-            console.log("USER ROLE:", res.data.user?.role);
+
 
             setUser(res.data.user);
             router.push("/home")
