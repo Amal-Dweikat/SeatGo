@@ -5,8 +5,10 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import {QueryClientProvider,QueryClient} from "@tanstack/react-query";
 import {AuthProvider} from "@/context/AuthContext";
+import { useEffect } from "react";
 
 import * as Notifications from "expo-notifications";
+import {initDB} from "@/db/sqlite";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -16,14 +18,18 @@ Notifications.setNotificationHandler({
     shouldSetBadge: false,
   }),
 });
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+
 
 const queryClient = new QueryClient();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  useEffect(() => {
+    const setup = async () => {
+      await initDB();
+    };
 
+    setup();
+  }, []);
   return (
       <AuthProvider>
       <QueryClientProvider client={queryClient}>

@@ -10,8 +10,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import api from "../../../api/TripDetails";
-
+import baseApi from "@/api/baseApi";
+import {bookingStatus} from "@/api/notification";
+import MapView, { Marker } from "react-native-maps";
 type TripType = {
   FromCity: string;
   ToCity: string;
@@ -64,7 +65,7 @@ export default function TripDetails() {
 
       console.log("Fetching trip:", tripId);
 
-      const res = await api.get(`/trips/${tripId}`);
+      const res = await baseApi.get(`/trips/${tripId}`);
 
       setTrip(res.data.trip);
       setPending(res.data.pending ?? []);
@@ -80,33 +81,33 @@ export default function TripDetails() {
 
   const deleteTrip = () => {
     Alert.alert(
-      "Delete Trip",
-      "Are you sure you want to delete this trip?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              console.log("Deleting trip:", tripId);
-
-              await api.delete(`/trips/${tripId}`);
-
-              console.log("Trip deleted ");
-
-              router.back();
-            } catch (err: any) {
-              console.log("DELETE ERROR:", err?.response?.data || err.message);
-              Alert.alert("Error", "Failed to delete trip");
-            }
+        "Delete Trip",
+        "Are you sure you want to delete this trip?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
           },
-        },
-      ],
-      { cancelable: true },
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: async () => {
+              try {
+                console.log("Deleting trip:", tripId);
+
+                await baseApi.delete(`/trips/${tripId}`);
+
+                console.log("Trip deleted ");
+
+                router.back();
+              } catch (err: any) {
+                console.log("DELETE ERROR:", err?.response?.data || err.message);
+                Alert.alert("Error", "Failed to delete trip");
+              }
+            },
+          },
+        ],
+        { cancelable: true },
     );
   };
   const editTrip = () => {
@@ -123,7 +124,7 @@ export default function TripDetails() {
 
   const updateTrip = async () => {
     try {
-      await api.put(`/trips/${tripId}`, editData);
+      await baseApi.put(`/trips/${tripId}`, editData);
 
       setTrip(editData);
       setEditVisible(false);
@@ -136,7 +137,7 @@ export default function TripDetails() {
   };
   const acceptBooking = async (bookingId: number) => {
     try {
-      await api.post(`/booking/${bookingId}/accept`);
+      await baseApi.post(`/booking/${bookingId}/accept`);
 
       console.log("Accepted booking");
 
@@ -148,7 +149,7 @@ export default function TripDetails() {
 
   const rejectBooking = async (bookingId: number) => {
     try {
-      await api.post(`/booking/${bookingId}/reject`);
+      await baseApi.post(`/booking/${bookingId}/reject`);
 
       console.log("Rejected booking");
 
@@ -160,7 +161,7 @@ export default function TripDetails() {
 
   const removeAccepted = async (bookingId: number) => {
     try {
-      await api.post(`/booking/${bookingId}/reject`);
+      await baseApi.post(`/booking/${bookingId}/reject`);
       await fetchTrip();
 
       console.log("Removed from accepted");
@@ -170,237 +171,236 @@ export default function TripDetails() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.tripCard}>
-        <View style={styles.tripTop}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.route}>
-              {trip.FromCity || "From ?"} → {trip.ToCity || "To ?"}
-            </Text>
-
-            <Text style={styles.date}>{trip.DateTrip}</Text>
-          </View>
-
-          <View style={styles.mapBox}>
-            {/* 
-      
-      <MapView
-  style={styles.map}
-  initialRegion={{
-    latitude: 31.95,
-    longitude: 35.23,
-    latitudeDelta: 0.5,
-    longitudeDelta: 0.5,
-  }}
->
-  <Marker
-    coordinate={{
-      latitude: 31.95,
-      longitude: 35.23,
-    }}
-  />
-</MapView>
-
-      {/* مؤقت (placeholder) */}
-            <View style={styles.mapPlaceholder}>
-              <Text>📍 Map</Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.divider} />
-
-        <View style={styles.infoRowNew}>
-          <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>💰 Price</Text>
-            <Text style={styles.infoValue}>{trip.Price} ₪</Text>
-          </View>
-
-          <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>💺 Seats</Text>
-            <Text style={styles.infoValue}>{trip.available_seats}</Text>
-          </View>
-        </View>
-
-        <View style={styles.actionsContainer}>
-          <View style={styles.mapActions}>
-            <TouchableOpacity style={styles.editBtn} onPress={editTrip}>
-              <Text style={styles.btnText}>Edit Trip</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.deleteBtn}
-              onPress={() => {
-                console.log("DELETE CLICKED");
-                deleteTrip();
-              }}
-            >
-              <Text style={styles.btnText}>Delete</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Pending Requests</Text>
-
-        {pending.length === 0 && <Text style={styles.empty}>No requests</Text>}
-
-        {pending.map((b) => (
-          <View key={b.id} style={styles.userCard}>
-            {b.user?.image ? (
-              <Image
-                source={{ uri: b.user.image }}
-                style={styles.avatarImage}
-              />
-            ) : (
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
-                  {b.user?.full_name?.charAt(0)}
-                </Text>
-              </View>
-            )}
-
-            <Text style={styles.userName}>{b.user?.full_name}</Text>
-
-            <View style={styles.actions}>
-              <TouchableOpacity
-                style={styles.acceptBtn}
-                onPress={() => acceptBooking(b.id)}
-              >
-                <Text style={styles.btnText}>✔</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.rejectBtn}
-                onPress={() => rejectBooking(b.id)}
-              >
-                <Text style={styles.btnText}>✖</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Accepted Passengers</Text>
-
-        {accepted.length === 0 && (
-          <Text style={styles.empty}>No passengers</Text>
-        )}
-
-        {accepted.map((b) => (
-          <View key={b.id} style={styles.userCard}>
-            {b.user?.image ? (
-              <Image
-                source={{ uri: b.user.image }}
-                style={styles.avatarImage}
-              />
-            ) : (
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
-                  {b.user?.full_name?.charAt(0)}
-                </Text>
-              </View>
-            )}
-
+      <ScrollView style={styles.container}>
+        <View style={styles.tripCard}>
+          <View style={styles.tripTop}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.userName}>{b.user?.full_name}</Text>
-
-              <Text style={styles.acceptTime}>
-                Accepted at:{" "}
-                {b.accepted_at
-                  ? new Date(b.accepted_at).toLocaleString()
-                  : "just now"}
+              <Text style={styles.route}>
+                {trip.FromCity || "From ?"} → {trip.ToCity || "To ?"}
               </Text>
+
+              <Text style={styles.date}>{trip.DateTrip}</Text>
             </View>
 
-            <TouchableOpacity
-              style={styles.removeBtn}
-              onPress={() => removeAccepted(b.id)}
-            >
-              <Text style={styles.removeText}>✖</Text>
-            </TouchableOpacity>
+            <View style={styles.mapBox}>
+
+              <MapView
+                  style={styles.map}
+                  initialRegion={{
+                    latitude: 31.95,
+                    longitude: 35.23,
+                    latitudeDelta: 0.5,
+                    longitudeDelta: 0.5,
+                  }}
+              >
+                <Marker
+                    coordinate={{
+                      latitude: 31.95,
+                      longitude: 35.23,
+                    }}
+                />
+              </MapView>
+
+
+              <View style={styles.mapPlaceholder}>
+                <Text>📍 Map</Text>
+              </View>
+            </View>
           </View>
-        ))}
-      </View>
 
-      {editVisible && (
-  <View style={styles.modalOverlay}>
-    <View style={styles.modalCard}>
-      <Text style={styles.modalTitle}>Edit Trip</Text>
+          <View style={styles.divider} />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.infoRowNew}>
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>💰 Price</Text>
+              <Text style={styles.infoValue}>{trip.Price} ₪</Text>
+            </View>
 
-        <Text style={styles.fieldLabel}>From City</Text>
-        <TextInput
-          style={styles.input}
-          value={editData.FromCity}
-          onChangeText={(t) =>
-            setEditData({ ...editData, FromCity: t })
-          }
-        />
+            <View style={styles.infoItem}>
+              <Text style={styles.infoLabel}>💺 Seats</Text>
+              <Text style={styles.infoValue}>{trip.available_seats}</Text>
+            </View>
+          </View>
 
-        <Text style={styles.fieldLabel}>To City</Text>
-        <TextInput
-          style={styles.input}
-          value={editData.ToCity}
-          onChangeText={(t) =>
-            setEditData({ ...editData, ToCity: t })
-          }
-        />
+          <View style={styles.actionsContainer}>
+            <View style={styles.mapActions}>
+              <TouchableOpacity style={styles.editBtn} onPress={editTrip}>
+                <Text style={styles.btnText}>Edit Trip</Text>
+              </TouchableOpacity>
 
-        <Text style={styles.fieldLabel}>Date</Text>
-        <TextInput
-          style={styles.input}
-          value={editData.DateTrip}
-          onChangeText={(t) =>
-            setEditData({ ...editData, DateTrip: t })
-          }
-        />
-
-        <Text style={styles.fieldLabel}>Price</Text>
-        <TextInput
-          style={styles.input}
-          value={String(editData.Price)}
-          keyboardType="numeric"
-          onChangeText={(t) =>
-            setEditData({ ...editData, Price: Number(t) })
-          }
-        />
-
-        <Text style={styles.fieldLabel}>Seats</Text>
-        <TextInput
-          style={styles.input}
-          value={String(editData.available_seats)}
-          keyboardType="numeric"
-          onChangeText={(t) =>
-            setEditData({
-              ...editData,
-              available_seats: Number(t),
-            })
-          }
-        />
-
-        
-
-      </ScrollView>
-      <View style={styles.modalActions}>
-          <TouchableOpacity style={styles.saveBtn} onPress={updateTrip}>
-            <Text style={styles.btnText}>Save</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.cancelBtn}
-            onPress={() => setEditVisible(false)}
-          >
-            <Text style={styles.btnText}>Cancel</Text>
-          </TouchableOpacity>
+              <TouchableOpacity
+                  style={styles.deleteBtn}
+                  onPress={() => {
+                    console.log("DELETE CLICKED");
+                    deleteTrip();
+                  }}
+              >
+                <Text style={styles.btnText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-    </View>
-  </View>
-)}
-    </ScrollView>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Pending Requests</Text>
+
+          {pending.length === 0 && <Text style={styles.empty}>No requests</Text>}
+
+          {pending.map((b) => (
+              <View key={b.id} style={styles.userCard}>
+                {b.user?.image ? (
+                    <Image
+                        source={{ uri: b.user.image }}
+                        style={styles.avatarImage}
+                    />
+                ) : (
+                    <View style={styles.avatar}>
+                      <Text style={styles.avatarText}>
+                        {b.user?.full_name?.charAt(0)}
+                      </Text>
+                    </View>
+                )}
+
+                <Text style={styles.userName}>{b.user?.full_name}</Text>
+
+                <View style={styles.actions}>
+                  <TouchableOpacity
+                      style={styles.acceptBtn}
+                      onPress={() => bookingStatus(b.id,"approved")}
+                  >
+                    <Text style={styles.btnText}>✔</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                      style={styles.rejectBtn}
+                      onPress={() => bookingStatus(b.id,"rejected")}
+                  >
+                    <Text style={styles.btnText}>✖</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+          ))}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Accepted Passengers</Text>
+
+          {accepted.length === 0 && (
+              <Text style={styles.empty}>No passengers</Text>
+          )}
+
+          {accepted.map((b) => (
+              <View key={b.id} style={styles.userCard}>
+                {b.user?.image ? (
+                    <Image
+                        source={{ uri: b.user.image }}
+                        style={styles.avatarImage}
+                    />
+                ) : (
+                    <View style={styles.avatar}>
+                      <Text style={styles.avatarText}>
+                        {b.user?.full_name?.charAt(0)}
+                      </Text>
+                    </View>
+                )}
+
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.userName}>{b.user?.full_name}</Text>
+
+                  <Text style={styles.acceptTime}>
+                    Accepted at:{" "}
+                    {b.accepted_at
+                        ? new Date(b.accepted_at).toLocaleString()
+                        : "just now"}
+                  </Text>
+                </View>
+
+                <TouchableOpacity
+                    style={styles.removeBtn}
+                    onPress={() => removeAccepted(b.id)}
+                >
+                  <Text style={styles.removeText}>✖</Text>
+                </TouchableOpacity>
+              </View>
+          ))}
+        </View>
+
+        {editVisible && (
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalCard}>
+                <Text style={styles.modalTitle}>Edit Trip</Text>
+
+                <ScrollView showsVerticalScrollIndicator={false}>
+
+                  <Text style={styles.fieldLabel}>From City</Text>
+                  <TextInput
+                      style={styles.input}
+                      value={editData.FromCity}
+                      onChangeText={(t) =>
+                          setEditData({ ...editData, FromCity: t })
+                      }
+                  />
+
+                  <Text style={styles.fieldLabel}>To City</Text>
+                  <TextInput
+                      style={styles.input}
+                      value={editData.ToCity}
+                      onChangeText={(t) =>
+                          setEditData({ ...editData, ToCity: t })
+                      }
+                  />
+
+                  <Text style={styles.fieldLabel}>Date</Text>
+                  <TextInput
+                      style={styles.input}
+                      value={editData.DateTrip}
+                      onChangeText={(t) =>
+                          setEditData({ ...editData, DateTrip: t })
+                      }
+                  />
+
+                  <Text style={styles.fieldLabel}>Price</Text>
+                  <TextInput
+                      style={styles.input}
+                      value={String(editData.Price)}
+                      keyboardType="numeric"
+                      onChangeText={(t) =>
+                          setEditData({ ...editData, Price: Number(t) })
+                      }
+                  />
+
+                  <Text style={styles.fieldLabel}>Seats</Text>
+                  <TextInput
+                      style={styles.input}
+                      value={String(editData.available_seats)}
+                      keyboardType="numeric"
+                      onChangeText={(t) =>
+                          setEditData({
+                            ...editData,
+                            available_seats: Number(t),
+                          })
+                      }
+                  />
+
+
+
+                </ScrollView>
+                <View style={styles.modalActions}>
+                  <TouchableOpacity style={styles.saveBtn} onPress={updateTrip}>
+                    <Text style={styles.btnText}>Save</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                      style={styles.cancelBtn}
+                      onPress={() => setEditVisible(false)}
+                  >
+                    <Text style={styles.btnText}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+        )}
+      </ScrollView>
   );
 }
 
@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 20,
   },
- 
+
 
   infoCard: {
     backgroundColor: "#fff",
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
   },
 
   actionsContainer: {
-    alignItems: "flex-end", 
+    alignItems: "flex-end",
     marginTop: 10,
   },
 
@@ -637,50 +637,50 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
- 
+
   modalOverlay: {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  backgroundColor: "rgba(0,0,0,0.6)",
-  justifyContent: "center",
-  alignItems: "center",
-  zIndex: 999,
-},
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 999,
+  },
 
-modalCard: {
-  width: "90%",
-  maxHeight: "80%",
-  backgroundColor: "#fff",
-  borderRadius: 20,
-  padding: 20,
-},
-modalTitle: {
-  fontSize: 18,
-  fontWeight: "bold",
-  marginBottom: 15,
-  textAlign: "center",
-  color: "#222",
-},
+  modalCard: {
+    width: "90%",
+    maxHeight: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
+    color: "#222",
+  },
 
-fieldLabel: {
-  fontSize: 13,
-  fontWeight: "600",
-  color: "#555",
-  marginBottom: 5,
-  marginTop: 10,
-},
+  fieldLabel: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#555",
+    marginBottom: 5,
+    marginTop: 10,
+  },
 
-input: {
-  borderWidth: 1,
-  borderColor: "#ddd",
-  borderRadius: 10,
-  padding: 10,
-  marginBottom: 5,
-},
-  
+  input: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 5,
+  },
+
 
   modalActions: {
     flexDirection: "row",

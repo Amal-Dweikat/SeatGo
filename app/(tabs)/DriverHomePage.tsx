@@ -233,7 +233,7 @@ export default function DriverHomePage() {
                     color={"#FFF8F0"}
                     onPress={() =>
                         router.push({
-                            pathname: "/",
+                            pathname: "/TripDetails/[id]",
                             params: { id: item.id },
                         })
                     }

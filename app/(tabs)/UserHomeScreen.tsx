@@ -1,4 +1,4 @@
-import { searchTrips } from "@/api/searchApi";
+
 import Hero from "@/components/Hero";
 import ItemCard from "@/components/ItemCard";
 import { useRouter } from "expo-router";
@@ -133,7 +133,7 @@ export default function UserHomeScreen() {
         title={"Share Your Ride,\n and earn money !"}
         subtitle={"Offer available seats in your car\n and make extra income"}
         buttonText="Become a Driver"
-        onPress={() => router.push("/")}
+        onPress={() => router.push("/DriverForm")}
       />
 
       {/* SEARCH BOX */}
@@ -145,18 +145,8 @@ export default function UserHomeScreen() {
           <Text style={styles.searchText}>🔍 Tap to search trips</Text>
         </TouchableOpacity>
       )}
-        {/*
-      <TouchableOpacity
-          onPress={() => bookingStatus(55,"approved")}
-      >
-        <Text>Accept</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-          onPress={() => bookingStatus(56,"rejected")}
-      >
-        <Text>rejected</Text>
-      </TouchableOpacity>
-*/}
+
+
       {open && (
         <View style={styles.card}>
           <Text style={styles.title}>Search Trips</Text>
@@ -192,8 +182,8 @@ export default function UserHomeScreen() {
         </View>
       )}
 
-      {/* TRIPS */}
-      <Text style={styles.sectionTitle}>Available Trips</Text>
+
+
       {/* AVAILABLE TRIPS */}
       <Text style={styles.sectionTitle}>Available Trips</Text>
 
@@ -211,6 +201,67 @@ export default function UserHomeScreen() {
           )}
         />
       )}
+      <Modal visible={showDriverRating} transparent animationType="fade">
+        <View style={styles.modalContainer}>
+
+          <View style={styles.modalContent}>
+
+
+            <TouchableOpacity
+                style={styles.favoriteBtn}
+                onPress={async () => {
+                  await addFavorite(selectedDriver?.id);
+                  setIsFav(true);
+                }}
+            >
+              <Ionicons
+                  name={isFav ? "heart" : "heart-outline"}
+                  size={26}
+                  color={isFav ? "red" : "red"}
+              />
+            </TouchableOpacity>
+
+            <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 20 }}>
+              Rate Your Driver
+            </Text>
+
+            <Text>{selectedDriver?.full_name}</Text>
+
+            <View style={{ flexDirection: "row", marginVertical: 10 }}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                  <TouchableOpacity key={star} onPress={() => setRating(star)}>
+                    <Ionicons
+                        name={star <= rating ? "star" : "star-outline"}
+                        size={28}
+                        color="gold"
+                    />
+                  </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+                onPress={async () => {
+                  await rateDriver(rating);
+                  setShowDriverRating(false);
+                }}
+            >
+              <Text style={{ color: "#E55C16", fontWeight: "bold" }}>
+                Submit Rating
+              </Text>
+            </TouchableOpacity>
+
+
+            <TouchableOpacity
+                style={styles.skipBtn}
+                onPress={() => setShowDriverRating(false)}
+            >
+              <Text style={{ color: "#888" }}>Skip</Text>
+            </TouchableOpacity>
+
+          </View>
+
+        </View>
+      </Modal>
     </View>
   );
 }
