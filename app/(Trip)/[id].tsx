@@ -104,6 +104,8 @@ export default function TripDetails() {
                          bookedSeats={bookedSeats}
                          totalSeats=   {trip?.TotalSeats}
                          endRepeatFromDriver={trip.repeat_trip?.EndRepeat}
+                         DriverSelectedDays={trip.repeat_trip?.DriverSelectedDays}
+
                          id={tripId}
                          onChangeSeat={setBookedSeatsHandler}
                      />

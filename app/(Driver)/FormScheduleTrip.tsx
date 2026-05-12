@@ -258,7 +258,7 @@ gap:5,
     pickerBox: {
         borderWidth: 1,
         marginBottom: 20,
-        borderColor: "#f3efec",
+        borderColor: "#d8d4d2",
         borderRadius: 10,
         paddingHorizontal: 10,
         backgroundColor: "#fffbf7",

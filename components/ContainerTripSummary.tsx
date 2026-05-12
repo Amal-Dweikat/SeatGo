@@ -6,7 +6,7 @@ import {BookingApi, BookingData} from "@/api/TripDetaild";
 import {generateRepeatedDates, scheduleTripReminder} from "@/services/notification2";
 import ChooseDate from "@/components/ChooseDateRepeat";
 import { formatDateInput } from "@/services/FormatDate";
-export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bookedSeats,totalSeats, departureTime, arrivalTime, date, note,id ,onChangeSeat,TripRepeat,endRepeatFromDriver}:any)  {
+export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bookedSeats,totalSeats, departureTime, arrivalTime, date, note,id ,onChangeSeat,TripRepeat,endRepeatFromDriver,DriverSelectedDays}:any)  {
 
 
     const [showBooking,setShowBooking]=useState(false);
@@ -111,7 +111,8 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
                             <>
                             <View style={styles.horizontalDivider} />
                            <ChooseDate selectedDays={selectedDays}
-                                       setSelectedDays={setSelectedDays}></ChooseDate>
+                                       setSelectedDays={setSelectedDays}
+                           DriverSelectedDays={DriverSelectedDays}></ChooseDate>
                             <View style={styles.horizontalDivider} />
                                 <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
                                     <Ionicons name="calendar-outline" size={16} color="#E55C16" />
@@ -213,7 +214,7 @@ const styles= StyleSheet.create({
 
     bookingBox: {
         marginTop: 12,
-        backgroundColor: "#FAFAFA",
+        backgroundColor: "#fff8f0",
         padding: 12,
         borderRadius: 12,
     },

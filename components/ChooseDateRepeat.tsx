@@ -3,15 +3,19 @@ import { Pressable, StyleSheet, Text, View} from "react-native";
 type Props = {
     selectedDays: string[];
     setSelectedDays: (days: string[]) => void;
+    DriverSelectedDays?:string[];
 };
 
 
-export default function ChooseDate({selectedDays, setSelectedDays,}: Props){
+export default function ChooseDate({selectedDays, setSelectedDays,DriverSelectedDays}: Props){
 
 
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-
+    const daysToShow =
+        DriverSelectedDays?.length
+            ? DriverSelectedDays
+            : days;
     const toggleDay = (day: string) => {
         if (selectedDays.includes(day)) {
             setSelectedDays(selectedDays.filter(d => d !== day));
@@ -24,7 +28,7 @@ export default function ChooseDate({selectedDays, setSelectedDays,}: Props){
     return(
         <View style={styles.daysContainer}>
             <Text style={styles.title}>{"Choose the days on which you want to repeat the trip"}</Text>
-            {days.map((day) => {
+            {daysToShow.map((day) => {
                 const isSelected = selectedDays.includes(day);
 
                 return (

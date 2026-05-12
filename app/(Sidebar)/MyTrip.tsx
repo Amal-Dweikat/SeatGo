@@ -1,5 +1,5 @@
 import {View, Text, TouchableOpacity, StyleSheet, ImageBackground, ScrollView, SafeAreaView} from "react-native";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import CalendarStrip from 'react-native-calendar-strip';
 import moment from "moment";
 import ItemCard from "@/components/ItemCard";
@@ -17,6 +17,83 @@ export default function Home() {
     const today = moment().startOf("day");
 
     const{user}=useAuth();
+    const expandTrips = (trips: any[]) => {
+        let result: any[] = [];
+        if (user?.role=== "driver"){
+            trips.forEach((trip) => {
+
+                //if trip dont repeat
+                if (!trip.TripRepeat) {
+                    result.push({
+                        ...trip,
+                        tripDate: moment(trip.DateTrip),
+                    });
+                }
+
+
+                if (trip.repeat_trip) {
+                    let current = moment(trip.DateTrip).startOf("day");
+                    const end = moment(trip.repeat_trip.EndRepeat).startOf("day");
+
+                    const selectedDays = trip.repeat_trip.DriverSelectedDays;
+
+
+                    while (current.isSameOrBefore(end)) {
+                        const day = current.format("ddd");
+
+                        if (selectedDays.includes(day)) {
+                            result.push({
+                                ...trip,
+                                tripDate: current.clone(),
+                            });
+                        }
+
+                        current.add(1, "day");
+                    }}
+            });
+        }
+        else
+        {
+            trips.forEach((trip) => {
+                if (!trip?.trip) return;
+
+                //if trip dont repeat
+                if (!trip.UserWantRepeat) {
+                    result.push({
+                        ...trip.trip,
+                        tripDate: moment(trip.trip.DateTrip),
+                    });
+                }
+
+
+                else {
+                    let current = moment(trip.trip.DateTrip).startOf("day");
+                    const end = moment(trip.EndRepeat).startOf("day");
+
+                    const selectedDays = trip.UserSelectedDays;
+
+
+                    while (current.isSameOrBefore(end)) {
+                        const day = current.format("ddd");
+
+                        if (selectedDays.includes(day)) {
+                            result.push({
+                                ...trip.trip,
+                                tripDate: current.clone(),
+                            });
+                        }
+
+                        current.add(1, "day");
+                    }}
+            });}
+
+        return result;
+    };
+
+    const expanded = useMemo(() => {
+        return expandTrips(trips);
+    }, [trips, user?.role]);
+
     useEffect(() => {
         GetTrip()
             .then((res) => {
@@ -24,15 +101,19 @@ export default function Home() {
             })
             .catch(console.log);
     }, []);
+
     useEffect(() => {
         if (!trips.length) return;
 
-        const expanded = expandTrips(trips);
+
 
         let baseList =
             tab === "Upcoming"
-                ? expanded.filter(t => t.tripDate.isSameOrAfter(today)  )
-                : expanded.filter(t => t.tripDate.isBefore(today) );
+                ? expanded.filter(t => t.tripDate.isSameOrAfter(today) &&
+                    t.status !== "completed" &&
+                    t.status !== "cancelled" )
+                : expanded.filter(t => t.tripDate.isBefore(today) ||
+                    t.status === "completed");
 
         if (selectedDate) {
             baseList = baseList.filter(t =>
@@ -42,7 +123,7 @@ export default function Home() {
 
         setDisplayedTrips(baseList);
 
-    }, [trips, tab, selectedDate]);
+    }, [expanded, tab, selectedDate]);
     //This function to handle press day in calendar
     const handleDateSelected = (date:any) => {
         if (selectedDate && date.isSame(selectedDate, "day")) {
@@ -59,78 +140,9 @@ export default function Home() {
 
     };
     //This function if i have repeat trip it's split to individual card
-    const expandTrips = (trips: any[]) => {
-        let result: any[] = [];
-        if (user?.role=== "driver"){
-        trips.forEach((trip) => {
-        //if trip dont repeat
-            if (!trip.TripRepeat) {
-                result.push({
-                    ...trip,
-                    tripDate: moment(trip.DateTrip),
-                });
-            }
 
 
-            if (trip.repeat_trip) {
-                let current = moment(trip.DateTrip).startOf("day");
-                const end = moment(trip.repeat_trip.EndRepeat).startOf("day");
 
-                const selectedDays = trip.repeat_trip.DriverSelectedDays;
-
-
-                while (current.isSameOrBefore(end)) {
-                    const day = current.format("ddd");
-
-                    if (selectedDays.includes(day)) {
-                        result.push({
-                            ...trip,
-                            tripDate: current.clone(),
-                        });
-                    }
-
-                    current.add(1, "day");
-                }}
-        });
-        }
-        else
-        {
-            trips.forEach((trip) => {
-            //if trip dont repeat
-            if (!trip.UserWantRepeat) {
-                result.push({
-                    ...trip.trip,
-                    tripDate: moment(trip.trip.DateTrip),
-                });
-            }
-
-
-            else {
-                let current = moment(trip.trip.DateTrip).startOf("day");
-                const end = moment(trip.EndRepeat).startOf("day");
-
-                const selectedDays = trip.UserSelectedDays;
-
-
-                while (current.isSameOrBefore(end)) {
-                    const day = current.format("ddd");
-
-                    if (selectedDays.includes(day)) {
-                        result.push({
-                            ...trip.trip,
-                            tripDate: current.clone(),
-                        });
-                    }
-
-                    current.add(1, "day");
-                }}
-        });}
-
-        return result;
-    };
-
-
-    const expanded = expandTrips(trips);
     // to add dots on any date have trip on calendar
     const markedDates = expanded.map(t => ({
         date: t.tripDate,
