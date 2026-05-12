@@ -109,7 +109,7 @@ export default function FormScheduleTrip(){
             </View>
 
             <View style={styles.cardComplete}>
-                <ScrollView style={[styles.container,{padding:5,backgroundColor: "#F5F5F5",marginBottom:5}]}>
+                <ScrollView style={[styles.container,{padding:5,backgroundColor: "#fff8f0",marginBottom:5}]}>
 
         <Text style={styles.text}>{"Transport"}</Text>
         <FormInput control={control} name={"transport"} placeholder={"Select transport such as 'Bus,Car'"}/>
@@ -175,7 +175,7 @@ export default function FormScheduleTrip(){
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F2F2F2",
+        backgroundColor: "#fbf0e6",
     },
     content: {
         flex: .8,
@@ -191,12 +191,12 @@ const styles = StyleSheet.create({
     },
     cardInfoDr :{
         flex :1.8,
-        backgroundColor:"#F7F7F7",
+        backgroundColor:"#fff8f0",
         borderRadius: 20,
         width: "100%",
         height:"100%",
         borderWidth: 1.5,
-        borderColor: "rgba(255,255,255,0.6)",
+        borderColor: "#fff8f0",
         elevation: 6,
         shadowColor: "#000",
         shadowOpacity: 0.1,
@@ -204,12 +204,12 @@ const styles = StyleSheet.create({
         padding :10,
 gap:5,
     },
-    containerComplete:{ backgroundColor:"#F7F7F7",
+    containerComplete:{ backgroundColor:"#fff8f0",
         borderRadius: 20,
         width: "100%",
         height:"100%",
         borderWidth: 1.5,
-        borderColor: "rgba(255,255,255,0.6)",
+        borderColor: "#fff8f0",
         elevation: 6,
         shadowColor: "#000",
         shadowOpacity: 0.1,
@@ -217,12 +217,12 @@ gap:5,
         padding :10,},
     cardComplete :{
         flex :1,
-        backgroundColor:"#F7F7F7",
+        backgroundColor:"#fff8f0",
         borderRadius: 20,
         width: "100%",
         height:"100%",
         borderWidth: 1.5,
-        borderColor: "rgba(255,255,255,0.6)",
+        borderColor: "#fff8f0",
         elevation: 6,
         shadowColor: "#000",
         shadowOpacity: 0.1,
@@ -253,15 +253,15 @@ gap:5,
     text: {
         fontSize: 10,
         marginBottom:5,
-        color: '#333',
+        color: '#000',
     },
     pickerBox: {
         borderWidth: 1,
-        borderColor: "#CCC",
-        borderRadius: 10,
         marginBottom: 20,
-        backgroundColor: "#fff",
-
+        borderColor: "#d8d4d2",
+        borderRadius: 10,
+        paddingHorizontal: 10,
+        backgroundColor: "#fffbf7",
         overflow: "hidden",
     },
     button:{

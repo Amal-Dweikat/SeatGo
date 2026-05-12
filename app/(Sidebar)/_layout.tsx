@@ -59,6 +59,7 @@ import { useAuth } from "@/context/AuthContext";
             </DrawerContentScrollView>
         );}
     export default function DrawerLayout() {
+        const { user } = useAuth();
     return (
         <Drawer
             drawerContent={(props) => (
@@ -144,6 +145,9 @@ import { useAuth } from "@/context/AuthContext";
                 options={{
                     drawerLabel: "Favorites",
                     title: "Favorites",
+                    drawerItemStyle:user?.role === "driver"
+                    ? { display: "none" }
+                    : undefined,
                     drawerIcon: ({ color, size }) => (
                         <Ionicons
                             name="heart-outline"

@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View ,Image} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
+import {useAuth} from "@/context/AuthContext";
 
 
 type Item = {
@@ -39,6 +40,8 @@ const getImage = (id: number) => {
   return placeImages[id % placeImages.length];
 };
 export default function ItemCard({ item , color = "#FFF8F0" , onPress,}: Props) {
+  const { user } = useAuth();
+
   return (
     <View style={[styles.card,{backgroundColor:color}]}>
       <View style={styles.header}>
@@ -68,8 +71,11 @@ export default function ItemCard({ item , color = "#FFF8F0" , onPress,}: Props) 
         <TouchableOpacity
   style={styles.button}
   onPress={() => {
-    if (onPress) {
-      onPress();
+    if (user?.role === "driver") {
+      router.push({
+        pathname: "/TripDetails/[id]",
+        params: { id: item.id },
+      });
     } else {
       router.push({
         pathname: "/(Trip)/[id]",
