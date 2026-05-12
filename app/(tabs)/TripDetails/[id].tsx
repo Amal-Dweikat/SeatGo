@@ -1,8 +1,13 @@
+import baseApi from "@/api/baseApi";
+import { bookingStatus } from "@/api/notification";
+import Back from "@/components/Back";
+import { useFocusEffect } from "@react-navigation/native";
+import { AxiosError } from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Alert,
-  Image,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,15 +15,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import baseApi from "@/api/baseApi";
-import {bookingStatus} from "@/api/notification";
 import MapView, { Marker } from "react-native-maps";
 type TripType = {
   FromCity: string;
   ToCity: string;
   DateTrip: string;
   Price: number;
-  available_seats: number;
+  TotalSeats: number;
+  BookedSeats: number;
 };
 
 type BookingType = {
@@ -35,45 +39,47 @@ export default function TripDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const tripId = Array.isArray(id) ? id[0] : id;
   const router = useRouter();
+
   const [trip, setTrip] = useState<TripType>({
     FromCity: "",
     ToCity: "",
     DateTrip: "",
     Price: 0,
-    available_seats: 0,
+    TotalSeats: 0,
+    BookedSeats: 0,
   });
 
   const [pending, setPending] = useState<BookingType[]>([]);
   const [accepted, setAccepted] = useState<BookingType[]>([]);
-
   const [editVisible, setEditVisible] = useState(false);
 
-  const [editData, setEditData] = useState({
+  const [editData, setEditData] = useState<TripType>({
     FromCity: "",
     ToCity: "",
     DateTrip: "",
     Price: 0,
-    available_seats: 0,
+    TotalSeats: 0,
+    BookedSeats: 0,
   });
 
   const fetchTrip = async () => {
     try {
-      if (!tripId) {
-        console.log("No tripId found");
-        return;
-      }
-
-      console.log("Fetching trip:", tripId);
+      if (!tripId) return;
 
       const res = await baseApi.get(`/trips/${tripId}`);
 
       setTrip(res.data.trip);
-      setPending(res.data.pending ?? []);
-      setAccepted(res.data.accepted ?? []);
+      setPending(res.data.pending);
+      setAccepted(res.data.accepted);
     } catch (err: any) {
-      console.log("FETCH ERROR:", err?.response?.data || err.message);
+      console.log(err?.response?.data || err.message);
     }
   };
+  useFocusEffect(
+    useCallback(() => {
+      fetchTrip();
+    }, [tripId]),
+  );
 
   useEffect(() => {
     if (tripId) fetchTrip();
@@ -81,33 +87,33 @@ export default function TripDetails() {
 
   const deleteTrip = () => {
     Alert.alert(
-        "Delete Trip",
-        "Are you sure you want to delete this trip?",
-        [
-          {
-            text: "Cancel",
-            style: "cancel",
+      "Delete Trip",
+      "Are you sure you want to delete this trip?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              console.log("Deleting trip:", tripId);
+
+              await baseApi.delete(`/trips/${tripId}`);
+
+              console.log("Trip deleted ");
+
+              router.back();
+            } catch (err: any) {
+              console.log("DELETE ERROR:", err?.response?.data || err.message);
+              Alert.alert("Error", "Failed to delete trip");
+            }
           },
-          {
-            text: "Delete",
-            style: "destructive",
-            onPress: async () => {
-              try {
-                console.log("Deleting trip:", tripId);
-
-                await baseApi.delete(`/trips/${tripId}`);
-
-                console.log("Trip deleted ");
-
-                router.back();
-              } catch (err: any) {
-                console.log("DELETE ERROR:", err?.response?.data || err.message);
-                Alert.alert("Error", "Failed to delete trip");
-              }
-            },
-          },
-        ],
-        { cancelable: true },
+        },
+      ],
+      { cancelable: true },
     );
   };
   const editTrip = () => {
@@ -116,7 +122,8 @@ export default function TripDetails() {
       ToCity: trip.ToCity,
       DateTrip: trip.DateTrip,
       Price: trip.Price,
-      available_seats: trip.available_seats,
+      TotalSeats: trip.TotalSeats,
+      BookedSeats: trip.BookedSeats,
     });
 
     setEditVisible(true);
@@ -124,9 +131,20 @@ export default function TripDetails() {
 
   const updateTrip = async () => {
     try {
-      await baseApi.put(`/trips/${tripId}`, editData);
+      const res = await baseApi.put(`/trips/${tripId}`, {
+        FromCity: editData.FromCity,
+        ToCity: editData.ToCity,
+        DateTrip: editData.DateTrip,
+        Price: editData.Price,
+        TotalSeats: editData.TotalSeats,
+        BookedSeats: editData.BookedSeats,
+      });
 
-      setTrip(editData);
+      setTrip({
+        ...trip,
+        ...res.data.trip,
+      });
+
       setEditVisible(false);
 
       Alert.alert("Success", "Trip updated successfully");
@@ -135,272 +153,268 @@ export default function TripDetails() {
       Alert.alert("Error", "Update failed");
     }
   };
-  const acceptBooking = async (bookingId: number) => {
-    try {
-      await baseApi.post(`/booking/${bookingId}/accept`);
 
-      console.log("Accepted booking");
+  const handleAccept = async (bookingId: number) => {
+    if (trip.BookedSeats >= trip.TotalSeats) {
+      Alert.alert("Trip Full", "No seats available anymore");
+      return;
+    }
+
+    try {
+      await bookingStatus(bookingId, "approved");
 
       await fetchTrip();
-    } catch (err: any) {
-      console.log("ACCEPT ERROR:", err?.response?.data || err.message);
+
+      const user = pending.find((b) => b.id === bookingId);
+      if (!user) return;
+
+      setPending((prev) => prev.filter((b) => b.id !== bookingId));
+
+      setAccepted((prev) => [
+        ...prev,
+        {
+          ...user,
+          status: "approved", 
+          accepted_at: new Date().toISOString(),
+        },
+      ]);
+
+      setTrip((prev) => ({
+        ...prev,
+        BookedSeats: prev.BookedSeats + 1,
+      }));
+    } catch (err) {
+      const error = err as AxiosError;
+      console.log(error.response?.data || error.message);
+      Alert.alert("Error", "Failed to accept booking");
     }
   };
-
-  const rejectBooking = async (bookingId: number) => {
+  const handleReject = async (bookingId: number) => {
     try {
-      await baseApi.post(`/booking/${bookingId}/reject`);
+      await bookingStatus(bookingId, "rejected");
 
-      console.log("Rejected booking");
+      await fetchTrip();
+    } catch (err) {
+      const error = err as AxiosError;
 
-      fetchTrip();
-    } catch (err: any) {
-      console.log("REJECT ERROR:", err?.response?.data || err.message);
+      console.log(error.response?.data || error.message);
+
+      Alert.alert("Error", "Failed to reject booking");
     }
   };
 
   const removeAccepted = async (bookingId: number) => {
     try {
-      await baseApi.post(`/booking/${bookingId}/reject`);
-      await fetchTrip();
+      await bookingStatus(bookingId, "rejected");
 
-      console.log("Removed from accepted");
-    } catch (err: any) {
-      console.log("REMOVE ERROR:", err?.response?.data || err.message);
+      await fetchTrip();
+    } catch (err) {
+      const error = err as AxiosError;
+
+      console.log(error.response?.data || error.message);
+
+      Alert.alert("Error", "Failed to update booking");
     }
   };
 
   return (
-      <ScrollView style={styles.container}>
-        <View style={styles.tripCard}>
-          <View style={styles.tripTop}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.route}>
-                {trip.FromCity || "From ?"} → {trip.ToCity || "To ?"}
-              </Text>
+    <ScrollView style={styles.container}>
+      <View style={styles.topBar}>
+        <Back />
 
-              <Text style={styles.date}>{trip.DateTrip}</Text>
-            </View>
+        <Text style={styles.pageTitle}>Trip Details</Text>
 
-            <View style={styles.mapBox}>
+        <View style={{ width: 40 }} />
+      </View>
+      <View style={styles.tripCard}>
+        <View style={styles.tripTop}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.route}>
+              {trip.FromCity} → {trip.ToCity}
+            </Text>
 
-              <MapView
-                  style={styles.map}
-                  initialRegion={{
-                    latitude: 31.95,
-                    longitude: 35.23,
-                    latitudeDelta: 0.5,
-                    longitudeDelta: 0.5,
-                  }}
-              >
-                <Marker
-                    coordinate={{
-                      latitude: 31.95,
-                      longitude: 35.23,
-                    }}
-                />
-              </MapView>
-
-
-              <View style={styles.mapPlaceholder}>
-                <Text>📍 Map</Text>
-              </View>
-            </View>
+            <Text style={styles.date}>{trip.DateTrip}</Text>
           </View>
 
-          <View style={styles.divider} />
+          <View style={styles.mapBox}>
+            <MapView
+              style={styles.map}
+              initialRegion={{
+                latitude: 31.95,
+                longitude: 35.23,
+                latitudeDelta: 0.5,
+                longitudeDelta: 0.5,
+              }}
+            >
+              <Marker coordinate={{ latitude: 31.95, longitude: 35.23 }} />
+            </MapView>
 
-          <View style={styles.infoRowNew}>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>💰 Price</Text>
-              <Text style={styles.infoValue}>{trip.Price} ₪</Text>
-            </View>
-
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>💺 Seats</Text>
-              <Text style={styles.infoValue}>{trip.available_seats}</Text>
+            <View style={styles.mapPlaceholder}>
+              <Text>📍 Map</Text>
             </View>
           </View>
+        </View>
 
-          <View style={styles.actionsContainer}>
-            <View style={styles.mapActions}>
-              <TouchableOpacity style={styles.editBtn} onPress={editTrip}>
-                <Text style={styles.btnText}>Edit Trip</Text>
+        <View style={styles.divider} />
+
+        <View style={styles.infoRowNew}>
+          <View style={styles.infoItem}>
+            <Text style={styles.infoLabel}>💰 Price</Text>
+            <Text style={styles.infoValue}>{trip.Price} ₪</Text>
+          </View>
+
+          <View style={styles.infoItem}>
+            <Text style={styles.infoLabel}>💺 Seats</Text>
+            <Text style={styles.infoValue}>
+              {trip.BookedSeats} / {trip.TotalSeats}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.actionsRow}>
+          <TouchableOpacity style={styles.editBtnSmall} onPress={editTrip}>
+            <Text style={styles.btnText}>Edit Trip</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.deleteBtnSmall} onPress={deleteTrip}>
+            <Text style={styles.btnText}>Delete</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <Modal
+        visible={editVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setEditVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Edit Trip</Text>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text style={styles.fieldLabel}>From City</Text>
+              <TextInput
+                style={styles.input}
+                value={editData.FromCity}
+                onChangeText={(t) => setEditData({ ...editData, FromCity: t })}
+              />
+
+              <Text style={styles.fieldLabel}>To City</Text>
+              <TextInput
+                style={styles.input}
+                value={editData.ToCity}
+                onChangeText={(t) => setEditData({ ...editData, ToCity: t })}
+              />
+
+              <Text style={styles.fieldLabel}>Date</Text>
+              <TextInput
+                style={styles.input}
+                value={editData.DateTrip}
+                onChangeText={(t) => setEditData({ ...editData, DateTrip: t })}
+              />
+
+              <Text style={styles.fieldLabel}>Price</Text>
+              <TextInput
+                style={styles.input}
+                value={String(editData.Price)}
+                keyboardType="numeric"
+                onChangeText={(t) =>
+                  setEditData({ ...editData, Price: Number(t) })
+                }
+              />
+
+              <Text style={styles.fieldLabel}>Total Seats</Text>
+              <TextInput
+                style={styles.input}
+                value={String(editData.TotalSeats)}
+                keyboardType="numeric"
+                onChangeText={(t) =>
+                  setEditData({
+                    ...editData,
+                    TotalSeats: Number(t),
+                  })
+                }
+              />
+            </ScrollView>
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.saveBtn} onPress={updateTrip}>
+                <Text style={styles.btnText}>Save</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                  style={styles.deleteBtn}
-                  onPress={() => {
-                    console.log("DELETE CLICKED");
-                    deleteTrip();
-                  }}
+                style={styles.cancelBtn}
+                onPress={() => setEditVisible(false)}
               >
-                <Text style={styles.btnText}>Delete</Text>
+                <Text style={styles.btnText}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
+      </Modal>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Pending Requests</Text>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Pending Requests</Text>
-
-          {pending.length === 0 && <Text style={styles.empty}>No requests</Text>}
-
-          {pending.map((b) => (
-              <View key={b.id} style={styles.userCard}>
-                {b.user?.image ? (
-                    <Image
-                        source={{ uri: b.user.image }}
-                        style={styles.avatarImage}
-                    />
-                ) : (
-                    <View style={styles.avatar}>
-                      <Text style={styles.avatarText}>
-                        {b.user?.full_name?.charAt(0)}
-                      </Text>
-                    </View>
-                )}
-
-                <Text style={styles.userName}>{b.user?.full_name}</Text>
-
-                <View style={styles.actions}>
-                  <TouchableOpacity
-                      style={styles.acceptBtn}
-                      onPress={() => bookingStatus(b.id,"approved")}
-                  >
-                    <Text style={styles.btnText}>✔</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                      style={styles.rejectBtn}
-                      onPress={() => bookingStatus(b.id,"rejected")}
-                  >
-                    <Text style={styles.btnText}>✖</Text>
-                  </TouchableOpacity>
-                </View>
+        {pending.length === 0 ? (
+          <Text style={styles.empty}>No pending requests</Text>
+        ) : (
+          pending.map((item) => (
+            <View key={item.id} style={styles.userCard}>
+              <View style={styles.userName}>
+                <Text>{item.user.full_name}</Text>
               </View>
-          ))}
-        </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Accepted Passengers</Text>
-
-          {accepted.length === 0 && (
-              <Text style={styles.empty}>No passengers</Text>
-          )}
-
-          {accepted.map((b) => (
-              <View key={b.id} style={styles.userCard}>
-                {b.user?.image ? (
-                    <Image
-                        source={{ uri: b.user.image }}
-                        style={styles.avatarImage}
-                    />
-                ) : (
-                    <View style={styles.avatar}>
-                      <Text style={styles.avatarText}>
-                        {b.user?.full_name?.charAt(0)}
-                      </Text>
-                    </View>
-                )}
-
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.userName}>{b.user?.full_name}</Text>
-
-                  <Text style={styles.acceptTime}>
-                    Accepted at:{" "}
-                    {b.accepted_at
-                        ? new Date(b.accepted_at).toLocaleString()
-                        : "just now"}
-                  </Text>
-                </View>
+              <View style={styles.actions}>
+                <TouchableOpacity
+                  style={styles.acceptBtn}
+                  onPress={() => handleAccept(item.id)}
+                >
+                  <Text style={styles.btnText}>Accept</Text>
+                </TouchableOpacity>
 
                 <TouchableOpacity
-                    style={styles.removeBtn}
-                    onPress={() => removeAccepted(b.id)}
+                  style={styles.rejectBtn}
+                  onPress={() => handleReject(item.id)}
                 >
-                  <Text style={styles.removeText}>✖</Text>
+                  <Text style={styles.btnText}>Reject</Text>
                 </TouchableOpacity>
               </View>
-          ))}
-        </View>
-
-        {editVisible && (
-            <View style={styles.modalOverlay}>
-              <View style={styles.modalCard}>
-                <Text style={styles.modalTitle}>Edit Trip</Text>
-
-                <ScrollView showsVerticalScrollIndicator={false}>
-
-                  <Text style={styles.fieldLabel}>From City</Text>
-                  <TextInput
-                      style={styles.input}
-                      value={editData.FromCity}
-                      onChangeText={(t) =>
-                          setEditData({ ...editData, FromCity: t })
-                      }
-                  />
-
-                  <Text style={styles.fieldLabel}>To City</Text>
-                  <TextInput
-                      style={styles.input}
-                      value={editData.ToCity}
-                      onChangeText={(t) =>
-                          setEditData({ ...editData, ToCity: t })
-                      }
-                  />
-
-                  <Text style={styles.fieldLabel}>Date</Text>
-                  <TextInput
-                      style={styles.input}
-                      value={editData.DateTrip}
-                      onChangeText={(t) =>
-                          setEditData({ ...editData, DateTrip: t })
-                      }
-                  />
-
-                  <Text style={styles.fieldLabel}>Price</Text>
-                  <TextInput
-                      style={styles.input}
-                      value={String(editData.Price)}
-                      keyboardType="numeric"
-                      onChangeText={(t) =>
-                          setEditData({ ...editData, Price: Number(t) })
-                      }
-                  />
-
-                  <Text style={styles.fieldLabel}>Seats</Text>
-                  <TextInput
-                      style={styles.input}
-                      value={String(editData.available_seats)}
-                      keyboardType="numeric"
-                      onChangeText={(t) =>
-                          setEditData({
-                            ...editData,
-                            available_seats: Number(t),
-                          })
-                      }
-                  />
-
-
-
-                </ScrollView>
-                <View style={styles.modalActions}>
-                  <TouchableOpacity style={styles.saveBtn} onPress={updateTrip}>
-                    <Text style={styles.btnText}>Save</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                      style={styles.cancelBtn}
-                      onPress={() => setEditVisible(false)}
-                  >
-                    <Text style={styles.btnText}>Cancel</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
             </View>
+          ))
         )}
-      </ScrollView>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Accepted</Text>
+
+        {accepted.length === 0 ? (
+          <Text style={styles.empty}>No accepted users</Text>
+        ) : (
+          accepted.map((item) => (
+            <View key={item.id} style={styles.userCard}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.userName}>{item.user.full_name}</Text>
+
+                {/* وقت القبول */}
+                {item.accepted_at && (
+                  <Text style={styles.acceptTime}>
+                    Accepted at: {item.accepted_at}
+                  </Text>
+                )}
+              </View>
+
+              <TouchableOpacity
+                style={styles.removeBtn}
+                onPress={() => removeAccepted(item.id)}
+              >
+                <Text style={styles.removeText}>Remove</Text>
+              </TouchableOpacity>
+            </View>
+          ))
+        )}
+      </View>
+    </ScrollView>
   );
 }
 
@@ -444,18 +458,28 @@ const styles = StyleSheet.create({
     gap: 10,
   },
 
-  editBtn: {
-    backgroundColor: "#e55b16",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 10,
+  actionsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 15,
   },
 
-  deleteBtn: {
+  editBtnSmall: {
+    backgroundColor: "#e55b16",
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    width: "48%",
+    alignItems: "center",
+  },
+
+  deleteBtnSmall: {
     backgroundColor: "#c50707",
     paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     borderRadius: 10,
+    width: "48%",
+    alignItems: "center",
   },
 
   infoRow: {
@@ -463,7 +487,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 20,
   },
-
 
   infoCard: {
     backgroundColor: "#fff",
@@ -505,6 +528,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 15,
+  },
+  topBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+
+    marginTop: 20,
+    marginBottom: 10,
+  },
+
+  pageTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#222",
+    marginTop: 20,
   },
 
   divider: {
@@ -637,7 +675,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-
   modalOverlay: {
     position: "absolute",
     top: 0,
@@ -645,17 +682,22 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: "rgba(0,0,0,0.6)",
+
     justifyContent: "center",
     alignItems: "center",
+
     zIndex: 999,
+    elevation: 10,
   },
 
   modalCard: {
     width: "90%",
-    maxHeight: "80%",
+    maxHeight: "100%", 
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 20,
+
+    alignSelf: "center",
   },
   modalTitle: {
     fontSize: 18,
@@ -680,7 +722,6 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 5,
   },
-
 
   modalActions: {
     flexDirection: "row",

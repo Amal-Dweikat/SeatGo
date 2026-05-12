@@ -18,9 +18,11 @@ type Item = {
 
 type Props = {
   item: Item;
-  color?:string;
+  color?: string;
   onPress?: () => void;
+  onUpdate?: (id: number, changes: Partial<Item>) => void; 
 };
+
 const placeImages = [
   "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
   "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
@@ -36,7 +38,7 @@ const placeImages = [
 const getImage = (id: number) => {
   return placeImages[id % placeImages.length];
 };
-export default function ItemCard({ item , color = "#fff" , onPress,}: Props) {
+export default function ItemCard({ item , color = "#fff" , onPress,onUpdate,}: Props) {
   return (
     <View style={[styles.card,{backgroundColor:color}]}>
       <View style={styles.header}>
@@ -58,6 +60,7 @@ export default function ItemCard({ item , color = "#fff" , onPress,}: Props) {
           <Text>👥 {item.BookedSeats} Passengers</Text>
           <Text><Ionicons name="car-sport-outline" size={15} color="#E55C16" /> {item.transport}</Text>
           </View>
+          
         </View>
       </View>
       <View style={[styles.horizontalLine]} />
@@ -87,7 +90,7 @@ export default function ItemCard({ item , color = "#fff" , onPress,}: Props) {
 const styles = StyleSheet.create({
   card: {
 
-    backgroundColor: "#fff",
+    backgroundColor: "#fff8f0",
     padding: 15,
     marginBottom: 10,
     borderRadius: 16,

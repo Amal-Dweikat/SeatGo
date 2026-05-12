@@ -1,44 +1,44 @@
-
+import { getFinishedTrip } from "@/api/authApi";
+import baseApi from "@/api/baseApi";
+import { searchTrips } from "@/api/searchApi";
 import Hero from "@/components/Hero";
 import ItemCard from "@/components/ItemCard";
+import useNotifications from "@/hooks/GetNotification";
+import { getLocalTrips, saveTrips } from "@/services/tripsService";
+import { Ionicons } from "@expo/vector-icons";
+import NetInfo from "@react-native-community/netinfo";
+import { useFocusEffect } from "@react-navigation/native";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
-  FlatList, Modal,
+  FlatList,
+  Modal,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import {useQuery} from "@tanstack/react-query";
-import {Ionicons} from "@expo/vector-icons";
-import {getFinishedTrip} from "@/api/authApi";
-import baseApi from "@/api/baseApi";
-import useNotifications from "@/hooks/GetNotification";
-
-import { searchTrips } from "@/api/searchApi";
-import { getLocalTrips, saveTrips } from "@/services/tripsService";
-import NetInfo from "@react-native-community/netinfo";
 
 type Trip = {
   id: number;
   FromCity: string;
   ToCity: string;
   DepartureTime: string;
-  DateTrip:string;
+  DateTrip: string;
   transport: string;
   Price: number;
   BookedSeats: number;
   driver_name: string;
   driver_image: string;
+  status?: string;
 };
 
 export default function UserHomeScreen() {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
-
   const [from_city, setFrom] = useState("");
   const [to_city, setTo] = useState("");
   const [time, setTime] = useState("");
@@ -47,37 +47,61 @@ export default function UserHomeScreen() {
   const [loading, setLoading] = useState(false);
 
   useNotifications();
-  useEffect(() => {
-    const loadTrips = async () => {
-      try {
-        setLoading(true);
 
-        const net = await NetInfo.fetch();
+  useFocusEffect(
+    useCallback(() => {
+      const loadTrips = async () => {
+        try {
+          setLoading(true);
 
-        if (net.isConnected) {
-          const result: Trip[] = await searchTrips({
-            FromCity: "",
-            ToCity: "",
-            DepartureTime: "",
-          });
+          const net = await NetInfo.fetch();
 
-          setTrips(result);
+          if (net.isConnected) {
+            const result: Trip[] = await searchTrips({
+              FromCity: "",
+              ToCity: "",
+              DepartureTime: "",
+            });
 
-          await saveTrips(result);
-        } else {
-          //  OFFLINE
-          const localTrips = await getLocalTrips();
-          setTrips(localTrips as Trip[]);
+            setTrips(result);
+            await saveTrips(result);
+          } else {
+            const localTrips = await getLocalTrips();
+            setTrips(localTrips as Trip[]);
+          }
+        } catch (e) {
+          console.log("LOAD ERROR:", e);
+        } finally {
+          setLoading(false);
         }
-      } catch (e) {
-        console.log("LOAD ERROR:", e);
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
 
-    loadTrips();
+      loadTrips();
+    }, []),
+  );
+
+  const updateTrip = useCallback((id: number, changes: Partial<Trip>) => {
+    setTrips((prev) => {
+      const updatedTrips = prev.map((trip) =>
+        trip.id === id ? { ...trip, ...changes } : trip,
+      );
+
+      saveTrips(updatedTrips);
+
+      return updatedTrips;
+    });
   }, []);
+
+  const filteredTrips = trips.filter(
+    (t) => t.status !== "cancelled" && t.status !== "completed",
+  );
+
+  const renderTrip = useCallback(
+    ({ item }: { item: Trip }) => {
+      return <ItemCard item={item} onUpdate={updateTrip} />;
+    },
+    [updateTrip],
+  );
 
   const handleSearch = () => {
     router.push({
@@ -90,20 +114,16 @@ export default function UserHomeScreen() {
     });
   };
 
-  const [id, setid] = useState("");
-  const handlepress = (id: any) => {
-    router.push(id);
-  };
-
-
   const [showDriverRating, setShowDriverRating] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState<any>(null);
   const [rating, setRating] = useState(0);
   const [isFav, setIsFav] = useState(false);
+
   const { data: finishedTrip } = useQuery({
     queryKey: ["finished-trip"],
     queryFn: getFinishedTrip,
   });
+
   const rateDriver = async (value: number) => {
     await baseApi.post("/rating", {
       trip_id: finishedTrip?.trip?.id,
@@ -136,7 +156,7 @@ export default function UserHomeScreen() {
         onPress={() => router.push("/DriverForm")}
       />
 
-      {/* SEARCH BOX */}
+      {/* SEARCH */}
       {!open && (
         <TouchableOpacity
           style={styles.collapsedCard}
@@ -145,7 +165,6 @@ export default function UserHomeScreen() {
           <Text style={styles.searchText}>🔍 Tap to search trips</Text>
         </TouchableOpacity>
       )}
-
 
       {open && (
         <View style={styles.card}>
@@ -182,42 +201,33 @@ export default function UserHomeScreen() {
         </View>
       )}
 
-
-
-      {/* AVAILABLE TRIPS */}
+      {/* TRIPS */}
       <Text style={styles.sectionTitle}>Available Trips</Text>
 
       {loading ? (
         <Text style={{ textAlign: "center" }}>Loading...</Text>
       ) : (
         <FlatList
-          data={trips}
+          data={filteredTrips}
           keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => <ItemCard item={item} />}
-          ListEmptyComponent={() => (
-            <Text style={{ textAlign: "center", marginTop: 20 }}>
-              No trips available
-            </Text>
-          )}
+          renderItem={renderTrip}
         />
       )}
+
       <Modal visible={showDriverRating} transparent animationType="fade">
         <View style={styles.modalContainer}>
-
           <View style={styles.modalContent}>
-
-
             <TouchableOpacity
-                style={styles.favoriteBtn}
-                onPress={async () => {
-                  await addFavorite(selectedDriver?.id);
-                  setIsFav(true);
-                }}
+              style={styles.favoriteBtn}
+              onPress={async () => {
+                await addFavorite(selectedDriver?.id);
+                setIsFav(true);
+              }}
             >
               <Ionicons
-                  name={isFav ? "heart" : "heart-outline"}
-                  size={26}
-                  color={isFav ? "red" : "red"}
+                name={isFav ? "heart" : "heart-outline"}
+                size={26}
+                color="red"
               />
             </TouchableOpacity>
 
@@ -229,37 +239,34 @@ export default function UserHomeScreen() {
 
             <View style={{ flexDirection: "row", marginVertical: 10 }}>
               {[1, 2, 3, 4, 5].map((star) => (
-                  <TouchableOpacity key={star} onPress={() => setRating(star)}>
-                    <Ionicons
-                        name={star <= rating ? "star" : "star-outline"}
-                        size={28}
-                        color="gold"
-                    />
-                  </TouchableOpacity>
+                <TouchableOpacity key={star} onPress={() => setRating(star)}>
+                  <Ionicons
+                    name={star <= rating ? "star" : "star-outline"}
+                    size={28}
+                    color="gold"
+                  />
+                </TouchableOpacity>
               ))}
             </View>
 
             <TouchableOpacity
-                onPress={async () => {
-                  await rateDriver(rating);
-                  setShowDriverRating(false);
-                }}
+              onPress={async () => {
+                await rateDriver(rating);
+                setShowDriverRating(false);
+              }}
             >
               <Text style={{ color: "#E55C16", fontWeight: "bold" }}>
                 Submit Rating
               </Text>
             </TouchableOpacity>
 
-
             <TouchableOpacity
-                style={styles.skipBtn}
-                onPress={() => setShowDriverRating(false)}
+              style={styles.skipBtn}
+              onPress={() => setShowDriverRating(false)}
             >
               <Text style={{ color: "#888" }}>Skip</Text>
             </TouchableOpacity>
-
           </View>
-
         </View>
       </Modal>
     </View>
@@ -267,9 +274,9 @@ export default function UserHomeScreen() {
 }
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-  },
+  flex: 1,
+  backgroundColor: "#fbf0e6",
+},
 
   collapsedCard: {
     backgroundColor: "#fff",
@@ -287,12 +294,12 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: "#fff",
-    padding: 18,
-    borderRadius: 15,
-    margin: 10,
-    elevation: 5,
-  },
+  backgroundColor: "#fff8f0",
+  padding: 18,
+  borderRadius: 15,
+  margin: 10,
+  elevation: 5,
+},
 
   title: {
     fontSize: 18,
@@ -372,5 +379,4 @@ const styles = StyleSheet.create({
     bottom: 10,
     right: 10,
   },
-
 });
