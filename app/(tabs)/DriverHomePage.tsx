@@ -128,7 +128,7 @@ export default function DriverHomePage() {
             </View>
 
 
-            {trip?.id && trip.status !== "completed" &&(
+            {trip?.id && trip.status !== "completed" && trip.status !== "cancelled" && (
                 <View style={styles.tripCard}>
                     <View style={styles.routeRow}>
                     <Ionicons name="car-outline" size={25} color="#E55C16" />
@@ -253,14 +253,14 @@ const styles = StyleSheet.create({
 
     basecontainer: {
         flex: 1,
-        backgroundColor: "#F2F2F2",
+        backgroundColor: "#fbf0e6",
         overflow: "hidden",
 
     },
     statsCard: {
         flexDirection: "row",
         justifyContent: "space-between",
-        backgroundColor: "#fff",
+        backgroundColor: "#FFF8F0",
         marginHorizontal: 10,
         marginTop: 10,
         borderRadius: 12,
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
         marginBottom:7
     },
     tripCard: {
-        backgroundColor: "#fff",
+        backgroundColor: "#FFF8F0",
         marginHorizontal: 10,
         marginTop: 7,
         borderRadius: 12,

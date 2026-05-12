@@ -107,7 +107,7 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F2F2F2",
+        backgroundColor: "#fbf0e6",
         overflow: "hidden",
 
     },
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     },
 
     card: {
-        backgroundColor: "#F5F5F5",
+        backgroundColor: "#FFF8F0",
         marginHorizontal: 20,
         marginTop: 150,
         borderRadius: 20,

@@ -4,7 +4,7 @@ import {
     StyleSheet,
     KeyboardAvoidingView,
     Platform,
-    ScrollView, SafeAreaView, ImageBackground, TouchableOpacity
+    ScrollView, SafeAreaView, ImageBackground, TouchableOpacity, Pressable
 } from "react-native";
 import FormInput from "@/components/FormInput";
 import {useForm} from "react-hook-form";
@@ -12,6 +12,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createDriverApi } from "@/api/driverApi";
 import {router} from "expo-router";
 import {useAuth} from "@/context/AuthContext";
+import {Ionicons} from "@expo/vector-icons";
 
 export default function DriverForm() {
     const { control, handleSubmit } = useForm();
@@ -35,6 +36,9 @@ export default function DriverForm() {
         driverMutation.mutate(data);
 
     };
+    const handlePress=()=>{
+        router.back()
+    }
 
     return (
         <KeyboardAvoidingView
@@ -48,6 +52,11 @@ export default function DriverForm() {
                 <SafeAreaView style={styles.basecontainer}>
                     <ImageBackground source={require("@/assets/driver.png")} style={styles.container} >
 
+                        <View style={styles.Back}>
+                            <Pressable onPress={()=> handlePress()}>
+                                <Ionicons name="chevron-back" size={30} color="#E55C16"/>
+                            </Pressable>
+                        </View>
 
                         <View style={styles.overlay} />
                         <View style={styles.content}>
@@ -56,6 +65,7 @@ export default function DriverForm() {
                         </View>
 
                     </ImageBackground>
+
 
                     <View style={styles.card}>
                         <Text style={styles.heading}>Driver License</Text>
@@ -117,7 +127,7 @@ export default function DriverForm() {
 const styles = StyleSheet.create({
     basecontainer: {
         flex: 1,
-        backgroundColor: "#F2F2F2",
+        backgroundColor: "#fbf0e6",
         overflow: "hidden",
 
     },
@@ -134,6 +144,7 @@ const styles = StyleSheet.create({
     },
 
     content: {
+        marginTop:22,
         paddingHorizontal: 20,
     },
 
@@ -151,7 +162,7 @@ const styles = StyleSheet.create({
         opacity: 0.9,
     },
     card: {
-        backgroundColor: "#F5F5F5",
+        backgroundColor: "#FFF8F0",
         marginHorizontal: 20,
         marginTop:18,
         borderRadius: 20,
@@ -182,7 +193,16 @@ const styles = StyleSheet.create({
         textAlign: "center",
         fontWeight: "bold",
     },
-
+    Back :{
+        alignItems: "center",
+        justifyContent: "center",
+        position: "absolute",
+        width: 40,
+        height: 40,
+        top: "15%",
+        left: "3%",
+        zIndex: 20,
+    },
 
 });
 

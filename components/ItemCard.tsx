@@ -36,7 +36,7 @@ const placeImages = [
 const getImage = (id: number) => {
   return placeImages[id % placeImages.length];
 };
-export default function ItemCard({ item , color = "#fff" , onPress,}: Props) {
+export default function ItemCard({ item , color = "#FFF8F0" , onPress,}: Props) {
   return (
     <View style={[styles.card,{backgroundColor:color}]}>
       <View style={styles.header}>

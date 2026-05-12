@@ -81,6 +81,15 @@ export default function LoginScreen() {
                 >
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => router.push("/ForgotPassword")}
+                    style={styles.forgotContainer}
+                >
+                    <View style={styles.line} />
+                    <Text style={styles.forgotText}>Forgot password?</Text>
+                    <View style={styles.line} />
+                </TouchableOpacity>
             </View>
 
             <View style={{ flex: 1 }} />
@@ -103,7 +112,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F2F2F2",
+        backgroundColor: "#fbf0e6",
 
 
     },
@@ -120,7 +129,7 @@ const styles = StyleSheet.create({
     },
 
     card: {
-        backgroundColor: "#F5F5F5",
+        backgroundColor: "#FFF8F0",
         marginHorizontal: 20,
         marginTop: 150,
         borderRadius: 20,
@@ -172,5 +181,24 @@ const styles = StyleSheet.create({
 
         color: "#E55C16",
         fontWeight: "bold",
+    },
+    forgotContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 25,
+    },
+
+    forgotText: {
+        marginHorizontal: 10,
+        color: "#E55C16",
+        fontSize: 13,
+        fontWeight: "500",
+    },
+
+    line: {
+        flex: 1,
+        height: 1,
+        backgroundColor: "#E55C16",
+        opacity: 0.4,
     },
 });

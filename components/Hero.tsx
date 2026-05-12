@@ -6,7 +6,7 @@ import {
     TouchableOpacity,
 } from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-import {router} from "expo-router";
+
 
 type Props = {
     image: any;
@@ -14,6 +14,9 @@ type Props = {
     subtitle: string;
     buttonText: string;
     onPress: () => void;
+    showNotification?: boolean;
+    showButton?: boolean;
+    height?: number;
 };
 
 export default function Hero({
@@ -22,15 +25,22 @@ export default function Hero({
                                  subtitle,
                                  buttonText,
                                  onPress,
+                                 showNotification = false,
+                                 showButton = true,
+                                 height = 250,
                              }: Props) {
     return (
         <ImageBackground source={image} style={styles.container} imageStyle={styles.image}>
 
-            <TouchableOpacity
-                style={styles.notificationIcon}
-            >
-                <Ionicons name="notifications-outline" size={24} color="#FFD6A5" />
-            </TouchableOpacity>
+            {showNotification && (
+                <TouchableOpacity style={styles.notificationIcon}>
+                    <Ionicons
+                        name="notifications-outline"
+                        size={24}
+                        color="#FFD6A5"
+                    />
+                </TouchableOpacity>
+            )}
 
             <View style={styles.overlay} />
 

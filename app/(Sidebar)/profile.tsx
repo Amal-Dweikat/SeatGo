@@ -133,6 +133,7 @@ export default function Profile(){
         mutationFn: updateProfileApi,
         onSuccess: (res) => {
             setUser(res.data);
+            alert("your profile updated successfully ");
         },
     });
 
@@ -300,7 +301,7 @@ const styles= StyleSheet.create({
 
         flex: 1,
         gap:12,
-        backgroundColor: "#F2F2F2",
+        backgroundColor: "#fbf0e6",
     },
     header: {
         flex: .85,
@@ -346,7 +347,7 @@ const styles= StyleSheet.create({
 
         width: "90%",
         alignSelf: "center",
-        backgroundColor: "#fff",
+        backgroundColor: "#FFF8F0",
         borderRadius: 20,
         padding: 15,
         shadowColor: "#000",

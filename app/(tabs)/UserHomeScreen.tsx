@@ -133,6 +133,7 @@ export default function UserHomeScreen() {
         title={"Share Your Ride,\n and earn money !"}
         subtitle={"Offer available seats in your car\n and make extra income"}
         buttonText="Become a Driver"
+        showNotification={true}
         onPress={() => router.push("/DriverForm")}
       />
 
