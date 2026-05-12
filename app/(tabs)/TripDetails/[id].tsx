@@ -2,7 +2,6 @@ import baseApi from "@/api/baseApi";
 import { bookingStatus } from "@/api/notification";
 import Back from "@/components/Back";
 import { useFocusEffect } from "@react-navigation/native";
-import { AxiosError } from "axios";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -33,6 +32,7 @@ type BookingType = {
     full_name: string;
     image?: string;
   };
+  numSeatBooked: number;
 };
 
 export default function TripDetails() {
@@ -155,37 +155,17 @@ export default function TripDetails() {
   };
 
   const handleAccept = async (bookingId: number) => {
-    if (trip.BookedSeats >= trip.TotalSeats) {
-      Alert.alert("Trip Full", "No seats available anymore");
-      return;
-    }
-
     try {
+      if (trip.BookedSeats >= trip.TotalSeats) {
+        Alert.alert("Trip Full", "No seats available anymore");
+        return;
+      }
+
       await bookingStatus(bookingId, "approved");
 
       await fetchTrip();
-
-      const user = pending.find((b) => b.id === bookingId);
-      if (!user) return;
-
-      setPending((prev) => prev.filter((b) => b.id !== bookingId));
-
-      setAccepted((prev) => [
-        ...prev,
-        {
-          ...user,
-          status: "approved", 
-          accepted_at: new Date().toISOString(),
-        },
-      ]);
-
-      setTrip((prev) => ({
-        ...prev,
-        BookedSeats: prev.BookedSeats + 1,
-      }));
     } catch (err) {
-      const error = err as AxiosError;
-      console.log(error.response?.data || error.message);
+      console.log(err);
       Alert.alert("Error", "Failed to accept booking");
     }
   };
@@ -195,10 +175,7 @@ export default function TripDetails() {
 
       await fetchTrip();
     } catch (err) {
-      const error = err as AxiosError;
-
-      console.log(error.response?.data || error.message);
-
+      console.log(err);
       Alert.alert("Error", "Failed to reject booking");
     }
   };
@@ -209,10 +186,7 @@ export default function TripDetails() {
 
       await fetchTrip();
     } catch (err) {
-      const error = err as AxiosError;
-
-      console.log(error.response?.data || error.message);
-
+      console.log(err);
       Alert.alert("Error", "Failed to update booking");
     }
   };
@@ -220,11 +194,15 @@ export default function TripDetails() {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.topBar}>
-        <Back />
+        <View style={styles.side}>
+          <Back />
+        </View>
 
-        <Text style={styles.pageTitle}>Trip Details</Text>
+        <View style={styles.center}>
+          <Text style={styles.pageTitle}>Trip Details</Text>
+        </View>
 
-        <View style={{ width: 40 }} />
+        <View style={styles.side} />
       </View>
       <View style={styles.tripCard}>
         <View style={styles.tripTop}>
@@ -363,6 +341,10 @@ export default function TripDetails() {
             <View key={item.id} style={styles.userCard}>
               <View style={styles.userName}>
                 <Text>{item.user.full_name}</Text>
+
+                <Text style={{ color: "#888", fontSize: 12 }}>
+                  Seats: {item.numSeatBooked}
+                </Text>
               </View>
 
               <View style={styles.actions}>
@@ -421,7 +403,7 @@ export default function TripDetails() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F6F8",
+    backgroundColor: "#fbf0e6",
     padding: 16,
   },
 
@@ -501,6 +483,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 20,
+    marginTop: 30,
     marginBottom: 20,
     elevation: 5,
   },
@@ -532,17 +515,24 @@ const styles = StyleSheet.create({
   topBar: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-
-    marginTop: 20,
+    marginTop: 50,
     marginBottom: 10,
+  },
+
+  side: {
+    width: 50,
+    alignItems: "flex-start",
+  },
+
+  center: {
+    flex: 1,
+    alignItems: "center",
   },
 
   pageTitle: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#222",
-    marginTop: 20,
   },
 
   divider: {
@@ -665,7 +655,7 @@ const styles = StyleSheet.create({
   },
 
   rejectBtn: {
-    backgroundColor: "#F44336",
+    backgroundColor: "#c50707",
     padding: 8,
     borderRadius: 10,
   },
@@ -692,7 +682,7 @@ const styles = StyleSheet.create({
 
   modalCard: {
     width: "90%",
-    maxHeight: "100%", 
+    maxHeight: "100%",
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 20,
