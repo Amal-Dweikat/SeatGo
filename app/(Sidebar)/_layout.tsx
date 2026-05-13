@@ -1,9 +1,8 @@
 import { Drawer } from "expo-router/drawer";
 import {Ionicons} from "@expo/vector-icons";
 import {router} from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import {DrawerContentScrollView, DrawerItemList} from "@react-navigation/drawer";
-import {Pressable, View,StyleSheet,Text,Image} from "react-native";
+import {Pressable, View,StyleSheet,Text} from "react-native";
 import MyIcon from "@/components/MyIcon";
 import { useAuth } from "@/context/AuthContext";
 
@@ -28,6 +27,7 @@ import { useAuth } from "@/context/AuthContext";
                 contentContainerStyle={{ flex: 1 }}
             >
                 <View style={{ flex: 1 }}>
+
                     <View style={styles.header}>
                         <View style={styles.avatar}>
                         <MyIcon
@@ -35,9 +35,13 @@ import { useAuth } from "@/context/AuthContext";
                             width={80}
                         />
                         </View>
+
                         <Text style={styles.text}>{getGreeting()}</Text>
+
                         <Text style={styles.subText}>Where are you heading today?</Text>
+
                     </View>
+
                     <DrawerItemList {...props}  />
                 </View>
 
@@ -67,6 +71,7 @@ import { useAuth } from "@/context/AuthContext";
             )}
             screenOptions={{
                 headerShown: false,
+
                 drawerItemStyle: {
                     borderBottomWidth: 1,
                     borderBottomColor: "#E0E0E0",
@@ -74,19 +79,24 @@ import { useAuth } from "@/context/AuthContext";
                     marginHorizontal:0,
                     marginLeft:-5,
                 },
+
                 drawerStyle: {
                     borderTopRightRadius: 0,
                     borderBottomRightRadius: 0,
                     backgroundColor: "#FFF8F0",
                     width: 240,
                 },
+
                 drawerContentContainerStyle: {
                     marginTop:20
                 },
 
                 drawerActiveBackgroundColor: "rgba(229,92,22,0.53)",
+
                 drawerActiveTintColor: "#fff",
+
                 drawerInactiveTintColor: "#e55c16",
+
                 drawerLabelStyle: {
                     fontSize: 14,
                     fontWeight: "600",
@@ -160,6 +170,7 @@ import { useAuth } from "@/context/AuthContext";
         </Drawer>
     );
 }
+
 const styles = StyleSheet.create({
     logoutButton: {
         flexDirection: "row",
@@ -174,9 +185,10 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "600",
         color:"#e55c16"
-    },header: {
-flex:.6,
+    },
 
+    header: {
+        flex:.6,
         borderRadius: 20,
         alignItems: "center",
         justifyContent:"center",
@@ -197,6 +209,7 @@ flex:.6,
         shadowRadius: 8,
 
     },
+
     text: {
         fontSize: 20,
         fontWeight: "700",

@@ -14,3 +14,6 @@ export const getNotification = () => {
 export const notificationRead = (id :number) => {
     return baseApi.put(`/notification/${id}`);
 };
+export const historyNotification = () => {
+    return baseApi.get("/historyNotification");
+};

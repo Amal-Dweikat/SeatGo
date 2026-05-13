@@ -9,10 +9,6 @@ export type BookingData =
 export const BookingApi = (data : BookingData) => {
     return baseApi.post("/booking", data);
 };
-export const myBooking = () => {
-    return baseApi.get("/myBooking");
-};
-
 export const returnTripInfo = (id: number) => {
     return baseApi.get(`/trip/${id}`);
 };

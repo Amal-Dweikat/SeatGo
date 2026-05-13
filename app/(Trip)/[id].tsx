@@ -4,56 +4,28 @@ import { useLocalSearchParams} from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CardInfoDriver from "@/components/CradInfoDriver";
 import TripCard from "@/components/ContainerTripSummary";
-import {useEffect, useState} from "react";
 import {returnTripInfo} from "@/api/TripDetaild";
-import axios from "axios";
 import Back from "@/components/Back";
+import { useQuery } from "@tanstack/react-query";
 
 export default function TripDetails() {
-    const [loading, setLoading] = useState(true);
     const { id } = useLocalSearchParams();
     const tripId = id ? Number(id) : null;
-    const setBookedSeatsHandler = (num :number) => {
-        setBookedSeats(num);
-    };
 
-    const [bookedSeats, setBookedSeats] = useState<number>(0);
-
-    const [trip, setTrip] = useState<any>(null);
-    const [driver, setDriver] = useState<any>(null);
-    const [car, setCar] = useState<any>(null);
-
-    useEffect(() => {
-        const fetchTrip = async () => {
-            console.log("START FETCH");
-
-            try {
-                const res = await returnTripInfo(Number(tripId));
-
-                console.log("RESPONSE OK");
-
-                setTrip(res.data.Trip[0]);
-                setCar(res.data.Cars);
-                setDriver(res.data.Drivers);
-                setBookedSeats(res.data.Trip[0].BookedSeats);
-            } catch (err) {
-                if (axios.isAxiosError(err)) {
-                    console.log("STATUS:", err.response?.status);
-                    console.log("DATA:", err.response?.data);
-                    console.log("MESSAGE:", err.message);
-                } else {
-                    console.log("NON AXIOS ERROR:", err);
-                }
-            } finally {
-                console.log("FINALLY FIRED");
-                setLoading(false);
-            }
-        };
-
-        fetchTrip();
-    }, [tripId]);
-
-    if (loading || !trip) {
+    const {
+        data,
+        isLoading,
+        refetch,
+    } = useQuery({
+        queryKey: ["trip-details", tripId],
+        queryFn: () => returnTripInfo(Number(tripId)),
+        enabled: !!tripId,
+    });
+    const trip = data?.data?.Trip?.[0];
+    const driver = data?.data?.Drivers;
+    const car = data?.data?.Cars;
+    const bookedSeats = trip?.BookedSeats ?? 0;
+    if (isLoading) {
         return (
             <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
                 <Text>Loading...</Text>
@@ -62,35 +34,29 @@ export default function TripDetails() {
     }
     return(
         <SafeAreaView style={{ flex: 1 }}>
-        <View style={styles.container}>
-
-
-            <View style={styles.header}>
-                <View style={styles.waveContainer}>
-
-                    <Svg width="100%" height="100%" viewBox="0 0 100 25" preserveAspectRatio="none">
-                        <Path
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <View style={styles.waveContainer}>
+                        <Svg width="100%" height="100%" viewBox="0 0 100 25" preserveAspectRatio="none">
+                            <Path
                             d="M0,19 C40,30 40,0 100,10 L100,0 L0,0 Z"
                             fill="#E55C16"
-                        />
-                        <Path
+                            />
+                            <Path
                             d="M0,17 C45,30 40,0 100,10"
                             stroke="#fbf0e6"
                             strokeWidth="1"
                             fill="none"
-                        />
-
-
-                    </Svg>
-                    <Back></Back>
-                    <Text style={styles.title}> Trip Details  </Text>
+                            />
+                        </Svg>
+                        <Back></Back>
+                        <Text style={styles.title}> Trip Details  </Text>
+                    </View>
                 </View>
-        </View>
-            <View style={styles.content}>
-                 <CardInfoDriver name={driver?.full_name} phone={driver?.phone_number} rating={driver?.average_rating} typeCar={car?.type} colorCar={car?.color} plateNum={car?.plate_number} image={driver?.profile_picture} ></CardInfoDriver>
-
-                 <View style={styles.cardComplete}>
-                     <TripCard
+                <View style={styles.content}>
+                    <CardInfoDriver name={driver?.full_name} phone={driver?.phone_number} rating={driver?.average_rating} typeCar={car?.type} colorCar={car?.color} plateNum={car?.plate_number} image={driver?.profile_picture} ></CardInfoDriver>
+                    <View style={styles.cardComplete}>
+                        <TripCard
                          fromCity={trip?.FromCity}
                          toCity={trip?.ToCity}
                          fromArea={trip?.FromRegion}
@@ -107,12 +73,11 @@ export default function TripDetails() {
                          DriverSelectedDays={trip.repeat_trip?.DriverSelectedDays}
 
                          id={tripId}
-                         onChangeSeat={setBookedSeatsHandler}
-                     />
+                         onChangeSeat={refetch}
+                        />
                     </View>
+                </View>
             </View>
-
-        </View>
         </SafeAreaView>
      );
 }
@@ -124,6 +89,7 @@ const styles= StyleSheet.create({
         gap:60,
         backgroundColor: "#fbf0e6",
     },
+
     header: {
         flex: 1,
 
@@ -137,6 +103,7 @@ const styles= StyleSheet.create({
         fontWeight: "bold",
         color: "#E55C16",
     },
+
     waveContainer: {
 
         position: "absolute",
@@ -145,6 +112,7 @@ const styles= StyleSheet.create({
         height: height * 0.25,
 
     },
+
     content: {
         flex: 3.5,
         alignItems: "center",
@@ -156,6 +124,7 @@ const styles= StyleSheet.create({
         color: "#E55C16",
         borderRadius: 20,
     },
+
     cardComplete :{
         flex :2.5,
         backgroundColor:"#fbf0e6",

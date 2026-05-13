@@ -5,7 +5,7 @@ const baseApi = axios.create({
   // baseURL: "http://192.168.1.107:8000/api",
 
   // baseURL: "http://172.22.63.32:8000/api",
-  baseURL: "http://192.168.1.27:8000/api",
+  baseURL: "http://10.248.242.32:8000/api",
 
   headers: {
     "Content-Type": "application/json",

@@ -6,6 +6,7 @@ import {BookingApi, BookingData} from "@/api/TripDetaild";
 import {generateRepeatedDates, scheduleTripReminder} from "@/services/notification2";
 import ChooseDate from "@/components/ChooseDateRepeat";
 import { formatDateInput } from "@/services/FormatDate";
+import {useMutation} from "@tanstack/react-query";
 export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bookedSeats,totalSeats, departureTime, arrivalTime, date, note,id ,onChangeSeat,TripRepeat,endRepeatFromDriver,DriverSelectedDays}:any)  {
 
 
@@ -23,6 +24,33 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
 
     const isTripEnded =
         tripDateTime < new Date();
+    const booking = useMutation({
+        mutationFn: BookingApi,
+
+        onSuccess: async () => {
+            Alert.alert("Success", "Trip booked successfully");
+
+            if (!repeat) {
+                await scheduleTripReminder(date, departureTime);
+            } else {
+                const repeatedDates = generateRepeatedDates(date, endDate, selectedDays);
+
+                for (const tripDate of repeatedDates) {
+                    await scheduleTripReminder(tripDate, departureTime);
+                }
+            }
+
+            onChangeSeat();
+            setShowBooking(false);
+        },
+
+        onError: (err: any) => {
+            const message =
+                err?.response?.data?.message || "Booking failed";
+
+            Alert.alert("Error", message);
+        },
+    });
     const handleConfirm =async ()=>{
         const data: BookingData = {
             NumSeat: seats,
@@ -31,31 +59,14 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
             dateOfEndRepeat: repeat ? endDate : null,
             Trip_id:id,
         };
-
-        try {
-            await BookingApi(data);
-            if (!repeat) {
-                await scheduleTripReminder(date, departureTime);
-            }
-            else {
-                const repeatedDates = generateRepeatedDates(date, endDate, selectedDays);//function to fetch all date included in the repeated trip
-                for (const tripDate of repeatedDates) {
-                    await scheduleTripReminder(tripDate, departureTime);
-                }
-            }
-            onChangeSeat(bookedSeats + seats);
-            setShowBooking(false);
-
-        } catch (err) {
-            console.log(err);
-        }
+        booking.mutate(data);
     }
     return (
 
         <ScrollView style={styles.container}>
             <View style={styles.card}>
                 <Text style={styles.sectionTitle}>Trip Summary</Text>
-                  <CardInfoTrip totalSeats={totalSeats} bookedSeats={bookedSeats} fromCity={fromCity} toCity={toCity} fromArea={fromArea} toArea={toArea} price={price} departureTime={departureTime} arrivalTime={arrivalTime} date={date} note={note}  ></CardInfoTrip>
+                <CardInfoTrip totalSeats={totalSeats} bookedSeats={bookedSeats} fromCity={fromCity} toCity={toCity} fromArea={fromArea} toArea={toArea} price={price} departureTime={departureTime} arrivalTime={arrivalTime} date={date} note={note}  ></CardInfoTrip>
                 {/* Button Go Book */}
                 {!isFull && !showBooking &&!isTripEnded&&(
                     <Pressable style={styles.bookButton} onPress={()=>setShowBooking(!showBooking) }>
@@ -65,7 +76,6 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
                 {/* Booking */}
                 {showBooking&&(
                     <View style={styles.bookingBox}>
-
                         <Text style={styles.sectionTitle}>Make Booking</Text>
                         <View style={styles.rowBetween}>
                             <Text>Choose Seats</Text>
@@ -95,6 +105,7 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
                         { isRepeatFromDriver &&  (
                         <>
                         <View style={styles.horizontalDivider} />
+
                         <View style={styles.rowBetween}>
                             <Text>Repeat Trip</Text>
                             <Switch
@@ -110,30 +121,24 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
                         { repeat &&  (
                             <>
                             <View style={styles.horizontalDivider} />
-                           <ChooseDate selectedDays={selectedDays}
-                                       setSelectedDays={setSelectedDays}
-                           DriverSelectedDays={DriverSelectedDays}></ChooseDate>
-                            <View style={styles.horizontalDivider} />
+                                <ChooseDate selectedDays={selectedDays}
+                                            setSelectedDays={setSelectedDays}
+                                            DriverSelectedDays={DriverSelectedDays}>
+                                </ChooseDate>
+                                <View style={styles.horizontalDivider} />
                                 <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
                                     <Ionicons name="calendar-outline" size={16} color="#E55C16" />
-
                                     <TextInput
                                         placeholder="End date for repeat: YYYY-MM-DD"
                                         value={endDate}
                                         onChangeText={(text) => {
 
-                                            const formatted :any =
-                                                formatDateInput(text,date);
-
+                                            const formatted :any = formatDateInput(text,date);
                                             if (formatted === null) {
                                                 return;
                                             }
-
-
-                                            if (
-                                                formatted > endRepeatFromDriver
-                                            ) {
-
+                                            if (formatted > endRepeatFromDriver)
+                                            {
                                                 Alert.alert(
                                                     "Invalid Date",
                                                     `Maximum allowed date is ${endRepeatFromDriver}`
@@ -141,7 +146,6 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
 
                                                 return;
                                             }
-
                                             setEndDate(formatted);
                                         }}
                                         style={{ flex: 1 }}
@@ -156,23 +160,25 @@ export default function TripCard({ fromCity, toCity, fromArea, toArea, price, bo
                                 <Pressable style={[styles.bookButton,{backgroundColor:'#ae3324',}]} onPress={()=>setShowBooking(!showBooking) }>
                                     <Text style={styles.bookButtonText}>CANCEL</Text>
                                 </Pressable>
-                            <Pressable style={styles.bookButton} onPress={handleConfirm }>
-                                <Text style={styles.bookButtonText}>CONFIRM</Text>
-                            </Pressable>
+                                <Pressable style={styles.bookButton} onPress={handleConfirm }>
+                                    <Text style={styles.bookButtonText}>CONFIRM</Text>
+                                </Pressable>
                             </View>
                         )}
                     </View>
                 )}
-
             </View>
         </ScrollView>
     );
 }
 const styles= StyleSheet.create({
 
-    container: { flex: 1,
-        backgroundColor: '#fbf0e6'
-        , padding: 5 },
+    container: {
+        flex: 1,
+        backgroundColor: '#fbf0e6',
+        padding: 5
+    },
+
     card: {
         backgroundColor: '#fff8f0',
         borderRadius: 15,
@@ -184,20 +190,26 @@ const styles= StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
     },
-    horizontalDivider: { height: 1,
-        backgroundColor: '#EEE',
-        marginVertical: 15 },
 
-    sectionTitle: { fontSize: 16,
+    horizontalDivider: {
+        height: 1,
+        backgroundColor: '#EEE',
+        marginVertical: 15
+    },
+
+    sectionTitle: {
+        fontSize: 16,
         fontWeight: 'bold',
         marginBottom: 15,
         textAlign: 'center',
-        color: '#E55C16' },
+        color: '#E55C16'
+    },
 
     noteContent: {
         fontSize: 13,
         color: '#666',
-        lineHeight: 18 },
+        lineHeight: 18
+    },
 
     bookButton: {
         backgroundColor: '#E55C16',
@@ -206,11 +218,14 @@ const styles= StyleSheet.create({
         marginTop: 20,
         alignItems: 'center'
         ,width:"40%",
-        alignSelf:"flex-end"},
+        alignSelf:"flex-end"
+    },
+
     bookButtonText: {
         color: '#fff',
         fontWeight: 'bold',
-        fontSize: 14 },
+        fontSize: 14
+    },
 
     bookingBox: {
         marginTop: 12,

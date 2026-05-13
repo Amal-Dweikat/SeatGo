@@ -7,6 +7,7 @@ import FormInput from "@/components/FormInput";
 export default function InputCityRow(props:any) {
     return (
         <View style={{ flexDirection: "row", }}>
+
             <View style={{ flexDirection: "column", alignItems: "center",gap:5}}>
                 <Ionicons name={props.iconName} size={24} color="#E55C16" />
                 {props.showDot && (
