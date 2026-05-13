@@ -52,7 +52,6 @@ export default function FavoriteDrivers() {
     const renderDriver = ({ item }: any) => {
         return (
             <View style={styles.card}>
-                {/* LEFT */}
                 <View style={styles.leftSection}>
                     <Image
                         source={{
@@ -66,7 +65,6 @@ export default function FavoriteDrivers() {
                     <View>
                         <Text style={styles.name}>{item.full_name}</Text>
 
-                        {/* Rating badge */}
                         <View style={styles.ratingBadge}>
                             <Ionicons name="star" size={14} color="#fff" />
                             <Text style={styles.ratingText}>
@@ -76,7 +74,6 @@ export default function FavoriteDrivers() {
                     </View>
                 </View>
 
-                {/* REMOVE BUTTON */}
                 <TouchableOpacity
                     style={styles.removeButton}
                     onPress={() => removeDriver(item.id)}
@@ -109,7 +106,7 @@ export default function FavoriteDrivers() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F4F6F8",
+        backgroundColor: "#fbf0e6",
         paddingTop: 80,
         paddingHorizontal: 20,
     },
@@ -128,9 +125,8 @@ const styles = StyleSheet.create({
         color: "#888",
     },
 
-    /* CARD */
     card: {
-        backgroundColor: "#fff",
+        backgroundColor: "#FFF8F0",
         borderRadius: 22,
         padding: 16,
         marginBottom: 14,
@@ -152,7 +148,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
 
-    /* IMAGE */
     image: {
         width: 70,
         height: 70,
@@ -162,14 +157,12 @@ const styles = StyleSheet.create({
         borderColor: "#eee",
     },
 
-    /* NAME */
     name: {
         fontSize: 17,
         fontWeight: "700",
         color: "#222",
     },
 
-    /* RATING BADGE */
     ratingBadge: {
         flexDirection: "row",
         alignItems: "center",
@@ -188,7 +181,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
 
-    /* REMOVE BUTTON */
     removeButton: {
         backgroundColor: "#E74C3C",
         width: 42,

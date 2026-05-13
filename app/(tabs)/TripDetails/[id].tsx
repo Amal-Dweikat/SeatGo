@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
   },
 
   tripCard: {
-    backgroundColor: "#fff",
+    backgroundColor: "#FFF8F0",
     padding: 20,
     borderRadius: 20,
     marginTop: 30,
@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
   },
 
   section: {
-    backgroundColor: "#fff",
+    backgroundColor: "#FFF8F0",
     padding: 15,
     borderRadius: 20,
     marginBottom: 20,

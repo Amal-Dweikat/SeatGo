@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 10,
     marginBottom: 1,
+    paddingTop: 5,
   },
 
   dropdown: {

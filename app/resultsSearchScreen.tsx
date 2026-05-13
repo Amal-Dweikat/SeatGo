@@ -127,7 +127,7 @@ export default function ResultsScreen() {
     });
 
   return (
-    <View style={{ flex: 1 }}>
+  <View style={styles.container}>
       <View style={{ position: "relative" }}>
         <Hero
           image={require("@/assets/img.png")}
@@ -169,6 +169,10 @@ export default function ResultsScreen() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+  flex: 1,
+  backgroundColor: "#fbf0e6",
+},
   header: {
     height: 180,
   },
