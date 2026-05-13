@@ -4,12 +4,12 @@ import { searchTrips } from "@/api/searchApi";
 import Hero from "@/components/Hero";
 import ItemCard from "@/components/ItemCard";
 import useNotifications from "@/hooks/GetNotification";
-import { getLocalTrips, saveTrips } from "@/services/tripsService";
 import { Ionicons } from "@expo/vector-icons";
 import NetInfo from "@react-native-community/netinfo";
 import { useFocusEffect } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
+import * as SQLite from "expo-sqlite";
 import { useCallback, useEffect, useState } from "react";
 import {
   FlatList,
@@ -46,28 +46,70 @@ export default function UserHomeScreen() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const [db, setDb] = useState<SQLite.SQLiteDatabase | null>(null);
+
   useNotifications();
 
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      const database = await SQLite.openDatabaseAsync("trips.db");
+
+      await database.execAsync(`
+        CREATE TABLE IF NOT EXISTS trips (
+          id INTEGER PRIMARY KEY NOT NULL,
+          FromCity TEXT,
+          ToCity TEXT,
+          DepartureTime TEXT,
+          DateTrip TEXT,
+          transport TEXT,
+          Price INTEGER,
+          BookedSeats INTEGER,
+          status TEXT
+        );
+      `);
+
+      if (!cancelled) setDb(database);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /* LOAD TRIPS ONLINE/OFFLINE*/
   useFocusEffect(
     useCallback(() => {
+      if (!db) {
+        console.log("DB NOT READY");
+        return;
+      }
+
       const loadTrips = async () => {
         try {
           setLoading(true);
 
           const net = await NetInfo.fetch();
+          console.log("INTERNET:", net.isConnected);
 
           if (net.isConnected) {
-            const result: Trip[] = await searchTrips({
+            const result = await searchTrips({
               FromCity: "",
               ToCity: "",
               DepartureTime: "",
             });
 
-            setTrips(result);
-            await saveTrips(result);
+            const tripsData = result?.data ?? result;
+
+            console.log("API DATA:", tripsData);
+
+            setTrips(tripsData);
+            await saveTrips(tripsData);
           } else {
-            const localTrips = await getLocalTrips();
-            setTrips(localTrips as Trip[]);
+            const local = await getLocalTrips();
+            console.log("OFFLINE SQLITE:", local);
+            setTrips(local);
           }
         } catch (e) {
           console.log("LOAD ERROR:", e);
@@ -77,32 +119,52 @@ export default function UserHomeScreen() {
       };
 
       loadTrips();
-    }, []),
+    }, [db]),
   );
 
-  const updateTrip = useCallback((id: number, changes: Partial<Trip>) => {
-    setTrips((prev) => {
-      const updatedTrips = prev.map((trip) =>
-        trip.id === id ? { ...trip, ...changes } : trip,
+  /*SAVE TO SQLITE */
+  const saveTrips = async (trips: Trip[]) => {
+    if (!db) return;
+
+    console.log("SAVE COUNT:", trips?.length);
+
+    await db.execAsync("DELETE FROM trips;");
+
+    for (const trip of trips || []) {
+      await db.runAsync(
+        `INSERT INTO trips (
+          id, FromCity, ToCity, DepartureTime, DateTrip,
+          transport, Price, BookedSeats, status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          trip.id,
+          trip.FromCity ?? "",
+          trip.ToCity ?? "",
+          trip.DepartureTime ?? "",
+          trip.DateTrip ?? "",
+          trip.transport ?? "",
+          trip.Price ?? 0,
+          trip.BookedSeats ?? 0,
+          trip.status ?? "",
+        ],
       );
+    }
 
-      saveTrips(updatedTrips);
+    console.log("SQLITE SAVE DONE");
+  };
 
-      return updatedTrips;
-    });
-  }, []);
+  /* GET FROM SQLITE */
+  const getLocalTrips = async () => {
+    if (!db) return [];
 
-  const filteredTrips = trips.filter(
-    (t) => t.status !== "cancelled" && t.status !== "completed",
-  );
+    const rows = await db.getAllAsync<Trip>(
+      "SELECT * FROM trips ORDER BY id DESC;",
+    );
 
-  const renderTrip = useCallback(
-    ({ item }: { item: Trip }) => {
-      return <ItemCard item={item} onUpdate={updateTrip} />;
-    },
-    [updateTrip],
-  );
+    return rows;
+  };
 
+  /* SEARCH NAV */
   const handleSearch = () => {
     router.push({
       pathname: "/resultsSearchScreen",
@@ -114,6 +176,7 @@ export default function UserHomeScreen() {
     });
   };
 
+  /* DRIVER RATING + FAVORITE */
   const [showDriverRating, setShowDriverRating] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState<any>(null);
   const [rating, setRating] = useState(0);
@@ -147,7 +210,6 @@ export default function UserHomeScreen() {
 
   return (
     <View style={styles.container}>
-      {/* HERO */}
       <Hero
         image={require("@/assets/img.png")}
         title={"Share Your Ride,\n and earn money !"}
@@ -156,7 +218,6 @@ export default function UserHomeScreen() {
         onPress={() => router.push("/DriverForm")}
       />
 
-      {/* SEARCH */}
       {!open && (
         <TouchableOpacity
           style={styles.collapsedCard}
@@ -201,16 +262,17 @@ export default function UserHomeScreen() {
         </View>
       )}
 
-      {/* TRIPS */}
       <Text style={styles.sectionTitle}>Available Trips</Text>
 
       {loading ? (
         <Text style={{ textAlign: "center" }}>Loading...</Text>
       ) : (
         <FlatList
-          data={filteredTrips}
+          data={trips}
           keyExtractor={(item) => String(item.id)}
-          renderItem={renderTrip}
+          renderItem={({ item }) => (
+            <ItemCard item={item} onUpdate={() => {}} />
+          )}
         />
       )}
 
@@ -272,11 +334,12 @@ export default function UserHomeScreen() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
-  flex: 1,
-  backgroundColor: "#fbf0e6",
-},
+    flex: 1,
+    backgroundColor: "#fbf0e6",
+  },
 
   collapsedCard: {
     backgroundColor: "#fff",
@@ -294,12 +357,12 @@ const styles = StyleSheet.create({
   },
 
   card: {
-  backgroundColor: "#fff8f0",
-  padding: 18,
-  borderRadius: 15,
-  margin: 10,
-  elevation: 5,
-},
+    backgroundColor: "#fff8f0",
+    padding: 18,
+    borderRadius: 15,
+    margin: 10,
+    elevation: 5,
+  },
 
   title: {
     fontSize: 18,

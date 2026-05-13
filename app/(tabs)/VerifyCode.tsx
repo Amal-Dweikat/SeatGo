@@ -10,6 +10,8 @@ import {
 import { forgotPasswordApi, verifyCodeApi } from "@/api/authApi";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
+import AuthBackground from "@/components/AuthBackground";
+import Back from "@/components/Back";
 
 export default function VerifyCode() {
   const { email } = useLocalSearchParams();
@@ -58,6 +60,8 @@ export default function VerifyCode() {
 
   return (
     <View style={styles.container}>
+      <AuthBackground />
+      <Back />
       <Text style={styles.title}>Verify Code</Text>
 
       <Text style={styles.subtitle}>

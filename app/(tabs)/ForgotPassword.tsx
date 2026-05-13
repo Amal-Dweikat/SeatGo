@@ -1,4 +1,6 @@
 import { forgotPasswordApi } from "@/api/authApi";
+import AuthBackground from "@/components/AuthBackground";
+import Back from "@/components/Back";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -41,13 +43,15 @@ export default function ForgotPassword() {
       console.log("DATA:", err?.response?.data);
 
       Alert.alert(
-        "Error❌",
+        "Error",
         err?.response?.data?.message || "Something went wrong",
       );
     }
   };
   return (
     <View style={styles.container}>
+      <AuthBackground />
+      <Back />
       <Text style={styles.title}>Forgot Password</Text>
       <Text style={styles.subtitle}>
         Enter your email to receive a verification code

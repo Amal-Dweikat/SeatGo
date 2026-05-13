@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import AuthBackground from "@/components/AuthBackground";
+import Back from "@/components/Back";
 
 export default function ResetPassword() {
   const { email, code } = useLocalSearchParams();
@@ -32,21 +34,23 @@ export default function ResetPassword() {
       const msg = err?.response?.data?.message;
 
       if (msg === "USER_NOT_FOUND") {
-        Alert.alert("Error❌", "This account is not registered in the app ");
+        Alert.alert("Error", "This account is not registered in the app ");
         return;
       }
 
       if (msg === "INVALID_CODE") {
-        Alert.alert("Error❌", "Verification code is wrong ");
+        Alert.alert("Error", "Verification code is wrong ");
         return;
       }
 
-      Alert.alert("Error❌", "Failed to reset password");
+      Alert.alert("Error", "Failed to reset password");
     }
   };
 
   return (
     <View style={styles.container}>
+      <AuthBackground />
+      <Back />
       <Text style={styles.title}>Reset Password</Text>
       <Text style={styles.subtitle}>Enter your new password below</Text>
 
